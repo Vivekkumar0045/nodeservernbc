@@ -1,0 +1,201 @@
+Unit_ID,Location,Operating_Hours,RPM,Load_Factor,Temperature_C,Vibration_mm_s,Lubrication_Level_Pct,Failure_Mode,Status,RUL_Days
+NBC-0001,Solar Park Y,9261,1559.0,0.54,58.5,0.46,84,None,Degrading,153
+NBC-0002,Solar Park Y,5560,1650.0,0.94,67.0,2.46,73,Outer Race Defect,Critical,0
+NBC-0003,Wind Farm X,15655,1242.0,0.56,52.8,0.31,93,None,Healthy,469
+NBC-0004,Wind Farm X,7667,1464.0,1.11,61.6,0.85,93,None,Healthy,398
+NBC-0005,Plant A,20454,1146.0,1.05,59.0,0.62,100,None,Healthy,306
+NBC-0006,Wind Farm X,11703,1502.0,0.64,52.4,0.55,98,None,Degrading,139
+NBC-0007,Plant A,12133,1243.0,1.11,72.8,2.71,73,Inner Race Defect,Critical,0
+NBC-0008,Plant B,12222,1358.0,0.94,59.7,1.21,83,Outer Race Defect,Critical,5
+NBC-0009,Plant A,24400,1644.0,1.12,63.5,1.0,86,None,Degrading,110
+NBC-0010,Wind Farm X,11087,1461.0,0.83,58.9,0.93,83,Outer Race Defect,Critical,12
+NBC-0011,Plant B,2094,1188.0,0.73,58.9,0.44,76,None,Healthy,688
+NBC-0012,Solar Park Y,4613,1265.0,0.53,53.2,0.42,90,None,Degrading,108
+NBC-0013,Plant A,8755,1483.0,0.99,63.0,1.61,79,Outer Race Defect,Critical,3
+NBC-0014,Wind Farm X,20467,2036.0,1.01,72.5,4.4,74,Ball Defect,Critical,0
+NBC-0015,Plant A,555,857.0,1.05,56.9,0.52,95,None,Degrading,175
+NBC-0016,Solar Park Y,21351,1463.0,1.2,61.4,0.96,86,None,Degrading,106
+NBC-0017,Wind Farm X,607,1643.0,0.62,62.2,1.41,81,Inner Race Defect,Critical,0
+NBC-0018,Plant B,5619,1681.0,0.94,60.5,0.84,86,None,Healthy,435
+NBC-0019,Plant A,6862,2003.0,0.53,58.0,0.61,91,None,Degrading,151
+NBC-0020,Plant B,16540,1722.0,0.76,57.4,0.65,91,None,Healthy,254
+NBC-0021,Wind Farm X,5610,1036.0,0.99,57.9,0.66,91,None,Degrading,94
+NBC-0022,Plant A,8551,1271.0,1.13,61.3,0.71,90,None,Healthy,634
+NBC-0023,Plant A,22636,1929.0,0.78,66.8,2.12,80,Inner Race Defect,Critical,0
+NBC-0024,Plant B,3763,1788.0,0.77,70.7,2.47,75,Inner Race Defect,Critical,0
+NBC-0025,Plant B,18208,1621.0,1.02,60.5,0.93,94,None,Degrading,111
+NBC-0026,Plant B,16309,1880.0,1.13,97.3,1.66,35,Lubrication Failure,Critical,5
+NBC-0027,Plant A,9131,1888.0,0.88,62.2,1.04,77,None,Degrading,100
+NBC-0028,Plant A,16163,1354.0,0.88,57.7,0.59,84,None,Healthy,510
+NBC-0029,Wind Farm X,14113,1169.0,0.88,56.3,0.54,97,None,Healthy,442
+NBC-0030,Plant A,1399,1497.0,1.05,64.7,1.91,78,Outer Race Defect,Critical,1
+NBC-0031,Plant B,7934,1444.0,0.9,59.3,0.77,94,None,Degrading,116
+NBC-0032,Solar Park Y,17450,1408.0,0.64,59.5,0.55,68,None,Degrading,66
+NBC-0033,Plant B,12069,1416.0,1.16,61.9,0.88,79,None,Healthy,495
+NBC-0034,Plant A,6060,1460.0,1.17,60.7,0.88,91,None,Healthy,571
+NBC-0035,Plant B,24669,1713.0,0.94,63.0,1.02,75,None,Degrading,50
+NBC-0036,Plant A,13865,1601.0,0.7,61.3,1.45,83,Inner Race Defect,Critical,0
+NBC-0037,Plant A,1955,1049.0,1.03,57.5,0.54,100,None,Healthy,752
+NBC-0038,Plant B,16625,1648.0,0.96,64.1,1.95,83,Inner Race Defect,Critical,1
+NBC-0039,Wind Farm X,20555,1409.0,0.98,62.3,1.3,80,Outer Race Defect,Critical,4
+NBC-0040,Plant B,10557,1166.0,1.07,61.9,0.73,92,None,Degrading,108
+NBC-0041,Wind Farm X,16027,1572.0,0.69,58.2,0.6,77,None,Degrading,135
+NBC-0042,Plant A,5717,1551.0,0.96,59.9,0.81,85,None,Degrading,169
+NBC-0043,Plant B,10570,1324.0,0.65,53.7,0.32,100,None,Healthy,613
+NBC-0044,Plant A,23680,1101.0,0.77,64.7,1.13,77,Inner Race Defect,Critical,0
+NBC-0045,Wind Farm X,21001,1873.0,0.7,57.1,0.73,94,None,Degrading,110
+NBC-0046,Solar Park Y,19620,1452.0,0.79,55.9,0.65,92,None,Degrading,113
+NBC-0047,Plant B,10051,998.0,0.88,55.7,0.49,99,None,Degrading,166
+NBC-0048,Wind Farm X,14148,1439.0,0.56,57.7,0.45,81,None,Degrading,119
+NBC-0049,Plant B,11787,1122.0,0.79,55.1,0.52,86,None,Degrading,113
+NBC-0050,Plant A,22731,1842.0,1.04,71.0,2.87,78,Inner Race Defect,Critical,0
+NBC-0051,Plant B,23062,1707.0,0.66,56.9,0.7,84,None,Degrading,60
+NBC-0052,Wind Farm X,21879,1349.0,1.01,63.6,1.67,82,Inner Race Defect,Critical,1
+NBC-0053,Solar Park Y,12017,995.0,0.86,58.7,0.6,80,Ball Defect,Degrading,44
+NBC-0054,Solar Park Y,18027,1789.0,1.11,66.2,1.27,64,None,Degrading,62
+NBC-0055,Wind Farm X,24675,955.0,0.76,56.4,0.49,87,None,Degrading,32
+NBC-0056,Solar Park Y,22286,1253.0,0.89,57.2,0.65,81,None,Degrading,90
+NBC-0057,Wind Farm X,1244,1199.0,0.59,57.1,0.63,79,Outer Race Defect,Critical,8
+NBC-0058,Solar Park Y,20779,1866.0,0.62,55.9,0.69,85,None,Degrading,82
+NBC-0059,Plant B,24589,1956.0,0.56,57.8,0.64,89,None,Degrading,74
+NBC-0060,Solar Park Y,14990,2092.0,0.52,61.8,0.75,79,None,Degrading,44
+NBC-0061,Plant B,9564,1286.0,1.0,59.9,0.75,86,None,Degrading,122
+NBC-0062,Plant A,7318,1852.0,0.71,62.7,0.84,74,None,Degrading,94
+NBC-0063,Plant A,14097,2291.0,0.65,62.1,0.85,86,None,Degrading,117
+NBC-0064,Plant B,8009,1412.0,0.8,68.3,1.2,72,Ball Defect,Critical,3
+NBC-0065,Solar Park Y,8794,1909.0,0.93,64.3,1.13,74,None,Degrading,90
+NBC-0066,Plant A,23175,1336.0,1.06,63.4,1.77,83,Inner Race Defect,Critical,1
+NBC-0067,Wind Farm X,8394,973.0,1.07,58.4,0.59,90,None,Degrading,146
+NBC-0068,Wind Farm X,1637,1875.0,0.95,67.9,2.79,74,Outer Race Defect,Critical,0
+NBC-0069,Wind Farm X,19044,1744.0,0.86,60.0,0.94,77,None,Degrading,68
+NBC-0070,Plant B,20263,1973.0,0.55,56.8,0.59,89,None,Degrading,123
+NBC-0071,Plant A,18631,1519.0,0.82,62.2,0.79,73,None,Degrading,59
+NBC-0072,Solar Park Y,18842,1111.0,0.83,62.8,0.86,76,Ball Defect,Critical,4
+NBC-0073,Solar Park Y,4974,1367.0,1.14,64.3,0.99,66,None,Degrading,99
+NBC-0074,Plant B,20192,1560.0,1.15,79.5,4.82,69,Inner Race Defect,Critical,0
+NBC-0075,Solar Park Y,13791,1458.0,1.17,63.3,1.05,80,None,Degrading,73
+NBC-0076,Solar Park Y,759,2012.0,1.01,63.5,1.06,92,None,Healthy,449
+NBC-0077,Plant A,21981,1539.0,1.13,75.0,3.92,73,Inner Race Defect,Critical,0
+NBC-0078,Plant A,1811,1694.0,0.54,58.6,0.58,69,None,Degrading,100
+NBC-0079,Plant B,21222,1106.0,1.09,58.7,0.65,83,None,Healthy,260
+NBC-0080,Solar Park Y,1813,1461.0,0.64,58.8,1.02,80,Outer Race Defect,Critical,3
+NBC-0081,Solar Park Y,7080,1514.0,1.09,67.3,1.31,77,Ball Defect,Critical,11
+NBC-0082,Solar Park Y,13256,2053.0,0.75,65.3,2.33,78,Ball Defect,Critical,0
+NBC-0083,Plant A,7060,1988.0,0.96,62.7,1.08,84,None,Degrading,152
+NBC-0084,Solar Park Y,4997,1510.0,0.96,61.0,0.82,85,None,Degrading,154
+NBC-0085,Solar Park Y,14759,1505.0,0.61,61.3,1.06,81,Inner Race Defect,Critical,2
+NBC-0086,Wind Farm X,1200,1247.0,0.51,52.9,0.31,100,None,Healthy,525
+NBC-0087,Plant A,6644,1658.0,1.15,64.2,1.02,81,None,Degrading,195
+NBC-0088,Plant B,5527,1513.0,1.12,61.4,0.9,99,None,Healthy,273
+NBC-0089,Solar Park Y,19750,1186.0,0.98,97.9,1.25,13,Lubrication Failure,Critical,1
+NBC-0090,Solar Park Y,17492,1468.0,0.85,57.2,0.73,94,None,Degrading,110
+NBC-0091,Plant B,1599,1553.0,1.0,67.4,3.01,76,Ball Defect,Critical,0
+NBC-0092,Plant A,15135,1220.0,0.69,59.0,0.78,79,Ball Defect,Critical,5
+NBC-0093,Wind Farm X,16680,1224.0,1.14,58.4,0.74,82,None,Healthy,527
+NBC-0094,Plant B,3198,985.0,0.75,63.7,1.35,68,Outer Race Defect,Critical,0
+NBC-0095,Plant A,7730,1244.0,0.54,54.8,0.41,78,None,Degrading,116
+NBC-0096,Wind Farm X,19803,1765.0,0.68,58.1,0.63,88,None,Healthy,213
+NBC-0097,Plant B,11700,2270.0,1.01,67.0,1.43,72,None,Degrading,75
+NBC-0098,Wind Farm X,17840,1453.0,0.57,77.1,0.92,15,Lubrication Failure,Critical,1
+NBC-0099,Plant A,6071,1330.0,0.7,63.0,1.78,76,Ball Defect,Critical,0
+NBC-0100,Plant A,1726,1358.0,1.04,59.7,0.88,88,None,Degrading,111
+NBC-0101,Solar Park Y,3678,1305.0,0.6,53.4,0.45,96,None,Degrading,151
+NBC-0102,Plant B,24971,1462.0,1.05,60.9,0.8,87,None,Healthy,360
+NBC-0103,Wind Farm X,24168,1375.0,0.54,53.7,0.41,83,None,Degrading,116
+NBC-0104,Plant B,16918,1486.0,0.73,55.3,0.52,93,None,Healthy,402
+NBC-0105,Plant A,19821,936.0,0.99,55.4,0.51,100,None,Degrading,134
+NBC-0106,Plant B,9846,1546.0,1.0,62.7,0.95,81,None,Degrading,87
+NBC-0107,Plant A,3513,1149.0,0.96,59.8,0.64,79,None,Degrading,129
+NBC-0108,Solar Park Y,20186,1497.0,0.87,59.4,0.81,84,None,Degrading,61
+NBC-0109,Solar Park Y,13956,1345.0,1.12,58.0,0.76,87,None,Healthy,326
+NBC-0110,Wind Farm X,19060,1224.0,0.93,61.5,2.0,79,Ball Defect,Critical,0
+NBC-0111,Wind Farm X,3942,1418.0,0.87,57.9,0.63,88,None,Healthy,663
+NBC-0112,Plant A,19328,1508.0,0.84,58.7,0.7,75,None,Degrading,125
+NBC-0113,Plant B,510,1457.0,1.06,59.2,0.69,90,None,Healthy,509
+NBC-0114,Plant B,9862,1871.0,1.15,70.5,3.17,80,Inner Race Defect,Critical,0
+NBC-0115,Solar Park Y,17769,1261.0,0.59,54.5,0.47,92,None,Degrading,63
+NBC-0116,Plant A,22600,1311.0,1.18,61.4,0.86,86,None,Degrading,110
+NBC-0117,Plant A,1008,1499.0,0.62,55.3,0.45,93,None,Healthy,657
+NBC-0118,Plant B,15974,1065.0,1.16,67.7,1.87,75,Ball Defect,Critical,0
+NBC-0119,Plant B,15295,1653.0,0.76,63.1,1.14,78,Ball Defect,Critical,5
+NBC-0120,Plant B,22527,1694.0,1.15,61.9,1.02,90,None,Healthy,234
+NBC-0121,Solar Park Y,20482,1103.0,0.62,53.1,0.37,93,None,Healthy,433
+NBC-0122,Plant B,6785,1470.0,0.78,86.8,0.95,18,Lubrication Failure,Critical,6
+NBC-0123,Solar Park Y,6842,1184.0,1.02,58.4,0.57,90,None,Healthy,399
+NBC-0124,Solar Park Y,21985,1623.0,1.03,59.3,0.85,96,None,Healthy,328
+NBC-0125,Solar Park Y,21531,2095.0,0.77,61.3,0.95,80,None,Degrading,86
+NBC-0126,Wind Farm X,24571,1611.0,0.95,59.4,0.72,100,None,Healthy,236
+NBC-0127,Wind Farm X,3081,1286.0,0.91,90.9,0.83,22,Lubrication Failure,Critical,10
+NBC-0128,Plant A,6847,1732.0,1.18,108.2,1.73,19,Lubrication Failure,Critical,4
+NBC-0129,Plant B,10348,1618.0,0.51,57.7,0.51,81,Outer Race Defect,Degrading,98
+NBC-0130,Wind Farm X,19073,958.0,1.0,54.8,0.44,96,None,Healthy,278
+NBC-0131,Wind Farm X,24642,2047.0,0.6,55.6,0.58,100,None,Healthy,204
+NBC-0132,Plant B,22153,1580.0,1.01,63.7,1.82,80,Outer Race Defect,Critical,1
+NBC-0133,Plant A,19468,1474.0,0.53,53.6,0.42,86,None,Healthy,199
+NBC-0134,Plant B,10611,1798.0,0.64,61.0,0.65,78,None,Degrading,126
+NBC-0135,Plant B,20253,1142.0,0.86,53.4,0.54,100,None,Healthy,338
+NBC-0136,Wind Farm X,12923,2112.0,1.03,63.6,1.16,90,None,Healthy,309
+NBC-0137,Plant A,10183,1777.0,0.63,60.0,0.66,80,None,Degrading,109
+NBC-0138,Wind Farm X,19828,1311.0,0.89,56.2,0.7,95,None,Degrading,85
+NBC-0139,Plant B,10985,1383.0,0.55,54.5,0.54,76,None,Degrading,48
+NBC-0140,Plant A,8831,1801.0,0.67,57.7,0.66,86,None,Degrading,156
+NBC-0141,Plant A,21461,1380.0,1.17,61.4,0.82,91,None,Healthy,182
+NBC-0142,Plant B,20078,1169.0,1.13,63.7,1.73,78,Outer Race Defect,Critical,0
+NBC-0143,Wind Farm X,3494,1653.0,0.67,60.1,1.22,80,Outer Race Defect,Critical,3
+NBC-0144,Plant B,5523,1615.0,1.2,60.4,1.0,100,None,Healthy,339
+NBC-0145,Wind Farm X,19198,1605.0,0.95,59.8,0.78,96,None,Healthy,492
+NBC-0146,Plant A,11497,1263.0,0.6,69.9,2.09,69,Inner Race Defect,Critical,0
+NBC-0147,Solar Park Y,24487,1935.0,0.54,65.6,1.8,71,Outer Race Defect,Critical,0
+NBC-0148,Plant A,17232,1261.0,0.9,57.6,0.65,86,None,Degrading,106
+NBC-0149,Wind Farm X,2721,832.0,1.14,59.5,0.53,77,None,Degrading,160
+NBC-0150,Wind Farm X,832,1713.0,0.71,81.9,1.06,26,Lubrication Failure,Critical,6
+NBC-0151,Wind Farm X,2392,1082.0,1.18,59.8,0.75,92,None,Degrading,155
+NBC-0152,Wind Farm X,23563,777.0,0.62,53.8,0.29,94,None,Degrading,69
+NBC-0153,Plant B,13840,1242.0,0.76,58.1,1.54,82,Outer Race Defect,Critical,0
+NBC-0154,Wind Farm X,12967,1160.0,1.02,61.0,0.7,88,None,Degrading,107
+NBC-0155,Plant B,11781,1306.0,0.6,55.7,0.46,94,None,Degrading,114
+NBC-0156,Solar Park Y,2517,1255.0,0.88,63.8,1.58,74,Outer Race Defect,Critical,0
+NBC-0157,Solar Park Y,15057,1179.0,0.64,60.8,0.9,80,Inner Race Defect,Critical,1
+NBC-0158,Plant A,1050,1485.0,1.02,107.1,1.64,2,Lubrication Failure,Critical,1
+NBC-0159,Solar Park Y,22623,1616.0,0.97,62.0,0.84,77,None,Degrading,122
+NBC-0160,Solar Park Y,14353,1561.0,0.79,58.2,0.59,99,None,Healthy,566
+NBC-0161,Solar Park Y,17210,1296.0,1.12,63.1,0.92,65,None,Degrading,73
+NBC-0162,Plant A,14245,1167.0,0.74,59.5,1.36,83,Inner Race Defect,Critical,0
+NBC-0163,Plant B,23546,1528.0,0.86,57.4,0.71,83,None,Healthy,356
+NBC-0164,Wind Farm X,4689,1460.0,0.97,61.8,0.95,68,None,Degrading,79
+NBC-0165,Solar Park Y,13554,1358.0,1.18,63.3,1.03,80,None,Degrading,64
+NBC-0166,Solar Park Y,24304,1637.0,1.12,67.0,2.59,77,Outer Race Defect,Critical,0
+NBC-0167,Plant B,18913,1215.0,0.71,62.1,1.4,79,Inner Race Defect,Critical,0
+NBC-0168,Solar Park Y,5194,1256.0,0.69,54.5,0.52,91,None,Degrading,119
+NBC-0169,Solar Park Y,20856,1706.0,0.56,74.1,0.79,28,Lubrication Failure,Critical,5
+NBC-0170,Plant A,13944,1419.0,0.85,58.0,0.66,88,None,Degrading,156
+NBC-0171,Solar Park Y,16045,1722.0,0.6,57.9,0.56,85,None,Degrading,132
+NBC-0172,Solar Park Y,2370,1852.0,1.03,75.5,3.62,73,Inner Race Defect,Critical,0
+NBC-0173,Solar Park Y,5179,1440.0,0.94,59.7,0.68,90,None,Healthy,303
+NBC-0174,Solar Park Y,16117,2085.0,0.91,65.0,2.19,80,Outer Race Defect,Critical,2
+NBC-0175,Plant B,12785,1333.0,0.56,52.8,0.43,82,None,Degrading,123
+NBC-0176,Solar Park Y,19327,711.0,1.11,62.3,0.77,81,Inner Race Defect,Critical,3
+NBC-0177,Plant B,5515,1397.0,0.75,58.7,0.6,79,None,Degrading,147
+NBC-0178,Wind Farm X,927,1884.0,0.75,59.7,0.86,92,None,Degrading,129
+NBC-0179,Plant A,19585,1487.0,0.6,62.9,1.78,76,Ball Defect,Critical,0
+NBC-0180,Plant A,21192,1224.0,0.81,59.3,0.62,73,None,Degrading,59
+NBC-0181,Wind Farm X,2593,1725.0,0.93,60.7,0.9,86,None,Degrading,168
+NBC-0182,Plant B,24002,1760.0,0.65,63.5,1.4,81,Inner Race Defect,Critical,1
+NBC-0183,Wind Farm X,9147,1478.0,1.11,61.1,0.92,81,None,Degrading,135
+NBC-0184,Plant A,5089,1414.0,0.61,53.0,0.44,98,None,Healthy,336
+NBC-0185,Wind Farm X,22775,1488.0,0.79,61.5,1.44,78,Outer Race Defect,Critical,1
+NBC-0186,Wind Farm X,4296,1557.0,1.16,64.9,0.97,88,None,Degrading,175
+NBC-0187,Plant A,10409,1527.0,0.9,65.0,2.2,81,Inner Race Defect,Critical,0
+NBC-0188,Solar Park Y,6719,1523.0,0.52,75.8,0.74,11,Lubrication Failure,Critical,4
+NBC-0189,Wind Farm X,22437,1087.0,1.1,69.0,2.33,76,Inner Race Defect,Critical,0
+NBC-0190,Solar Park Y,24859,1698.0,0.85,58.3,0.73,89,None,Healthy,190
+NBC-0191,Solar Park Y,15474,1154.0,0.64,54.8,0.35,83,None,Healthy,315
+NBC-0192,Plant B,23017,1383.0,1.13,59.6,0.87,79,None,Degrading,100
+NBC-0193,Solar Park Y,4249,1107.0,1.1,61.4,0.69,80,None,Degrading,155
+NBC-0194,Solar Park Y,22648,1592.0,0.64,56.9,0.55,83,None,Degrading,122
+NBC-0195,Wind Farm X,891,1081.0,0.69,59.1,1.47,78,Ball Defect,Critical,0
+NBC-0196,Solar Park Y,2359,1738.0,1.2,65.9,1.3,75,None,Degrading,101
+NBC-0197,Solar Park Y,15519,1274.0,0.66,60.6,1.33,75,Outer Race Defect,Critical,0
+NBC-0198,Plant B,7226,1079.0,1.1,60.8,0.62,83,None,Healthy,372
+NBC-0199,Solar Park Y,21082,1658.0,0.59,57.4,0.48,80,None,Healthy,431
+NBC-0200,Wind Farm X,13209,2066.0,0.92,62.3,1.07,84,None,Degrading,128

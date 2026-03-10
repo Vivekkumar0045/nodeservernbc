@@ -1,0 +1,19 @@
+{
+  "name": "nbc-bearing-bot",
+  "version": "1.0.0",
+  "description": "NBC Bearing WhatsApp Loyalty Bot — Twilio Serverless",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "devDependencies": {
+    "@twilio-labs/serverless-runtime-types": "*"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "body-parser": "^2.2.2",
+    "express": "^5.2.1"
+  }
+}

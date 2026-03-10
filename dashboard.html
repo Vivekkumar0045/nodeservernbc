@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>NBC Bearing — Mechanic Dashboard</title>
+  <link rel="icon" href="data:,">
+  <script src="chart.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh}
+
+    /* ── Header ── */
+    header{background:linear-gradient(135deg,#1a1f2e 0%,#161b27 100%);border-bottom:1px solid #2d3748;padding:16px 28px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .logo{width:40px;height:40px;background:linear-gradient(135deg,#f6ad55,#ed8936);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+    header h1{font-size:1.3rem;font-weight:700;color:#fff}
+    header p{font-size:0.78rem;color:#718096;margin-top:2px}
+
+    /* ── Tabs ── */
+    .tabs{display:flex;gap:4px;margin-left:24px}
+    .tab{background:transparent;border:1px solid #2d3748;border-radius:8px;color:#718096;padding:8px 18px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all .2s}
+    .tab.active{background:#2d3748;color:#e2e8f0;border-color:#4a5568}
+    .tab:hover:not(.active){border-color:#4a5568;color:#a0aec0}
+
+    /* ── Header action buttons ── */
+    .hdr-btns{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}
+    .btn{border:none;padding:9px 18px;border-radius:10px;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:opacity .2s,transform .1s}
+    .btn:hover{opacity:.88}.btn:active{transform:scale(.97)}.btn:disabled{opacity:.45;cursor:not-allowed}
+    .btn-blue{background:linear-gradient(135deg,#2b6cb0,#2c5282);color:#fff;box-shadow:0 2px 10px rgba(66,153,225,.3)}
+    .btn-green{background:linear-gradient(135deg,#276749,#22543d);color:#fff;box-shadow:0 2px 10px rgba(72,187,120,.25)}
+    .btn-purple{background:linear-gradient(135deg,#553c9a,#44337a);color:#fff;box-shadow:0 2px 10px rgba(159,122,234,.3)}
+    .spin{animation:spin .8s linear infinite;display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── Status bar ── */
+    .status-bar{background:#1a1f2e;border-bottom:1px solid #2d3748;padding:7px 28px;font-size:0.76rem;color:#718096;display:flex;align-items:center;gap:9px}
+    .dot{width:7px;height:7px;border-radius:50%;background:#718096;flex-shrink:0}
+    .dot.ok{background:#68d391}.dot.err{background:#fc8181}.dot.active{background:#f6ad55;animation:pulse 1s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+    /* ── Main layout ── */
+    main{padding:24px 28px;max-width:1440px}
+    .tab-pane{display:none}.tab-pane.active{display:block}
+
+    /* ── Stat cards ── */
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:24px}
+    .stat-card{background:#1a1f2e;border:1px solid #2d3748;border-radius:14px;padding:18px 20px;position:relative;overflow:hidden}
+    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--a,#4299e1)}
+    .sl{font-size:0.74rem;color:#718096;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+    .sv{font-size:1.9rem;font-weight:800;color:#fff;margin:5px 0 2px}
+    .ss{font-size:0.74rem;color:#718096}
+    .si{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:2rem;opacity:.13}
+
+    /* ── Cards / Grid ── */
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px}
+    @media(max-width:900px){.grid2{grid-template-columns:1fr}}
+    .card{background:#1a1f2e;border:1px solid #2d3748;border-radius:14px;padding:20px}
+    .card-title{font-size:0.82rem;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px}
+    .chart-wrap{position:relative;height:210px}
+
+    /* ── Tables ── */
+    .tw{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:0.85rem}
+    thead th{padding:9px 13px;text-align:left;color:#718096;font-weight:600;font-size:0.73rem;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #2d3748}
+    tbody tr{border-bottom:1px solid #1e2535;transition:background .15s}
+    tbody tr:hover{background:#1e2535}
+    tbody td{padding:10px 13px;color:#e2e8f0}
+    .tier-badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:0.73rem;font-weight:700}
+    .tier-Bronze{background:#2d2016;color:#f6ad55}
+    .tier-Silver{background:#1e2535;color:#a0aec0}
+    .tier-Gold{background:#2d2a10;color:#ecc94b}
+    .tier-Diamond{background:#1a2040;color:#76e4f7}
+    .pri-High{color:#fc8181;font-weight:700}
+    .pri-Medium{color:#f6ad55;font-weight:700}
+    .pri-Low{color:#68d391;font-weight:700}
+
+    .bar-wrap{display:flex;align-items:center;gap:8px}
+    .bar-bg{flex:1;background:#2d3748;border-radius:4px;height:6px}
+    .bar-fill{height:6px;border-radius:4px;background:linear-gradient(90deg,#4299e1,#63b3ed)}
+
+    .toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+    input[type=search]{background:#0f1117;border:1px solid #2d3748;border-radius:8px;color:#e2e8f0;padding:7px 13px;font-size:0.85rem;outline:none;width:200px}
+    input[type=search]:focus{border-color:#4299e1}
+    select{background:#0f1117;border:1px solid #2d3748;border-radius:8px;color:#e2e8f0;padding:7px 13px;font-size:0.85rem;outline:none;cursor:pointer}
+    .count{margin-left:auto;font-size:0.76rem;color:#718096}
+
+    /* ── Empty state ── */
+    .empty{text-align:center;padding:70px 20px;color:#4a5568}
+    .empty .ico{font-size:3rem;margin-bottom:14px}
+    .empty h2{font-size:1.1rem;color:#718096;margin-bottom:7px}
+    .empty p{font-size:0.85rem}
+
+    /* ══════════════════════════════════════
+       AI INSIGHTS STYLES
+    ══════════════════════════════════════ */
+
+    /* AI intro banner */
+    .ai-banner{background:linear-gradient(135deg,#1a1040 0%,#0d1f3c 100%);border:1px solid #553c9a;border-radius:16px;padding:28px 32px;margin-bottom:24px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+    .ai-logo{width:60px;height:60px;background:linear-gradient(135deg,#9f7aea,#6b46c1);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;box-shadow:0 4px 20px rgba(159,122,234,.4)}
+    .ai-banner h2{font-size:1.2rem;font-weight:800;color:#e9d8fd}
+    .ai-banner p{font-size:0.85rem;color:#b79aed;margin-top:4px;max-width:600px}
+    .ai-banner .btn{margin-left:auto;padding:12px 28px;font-size:0.95rem}
+
+    /* Thinking box */
+    .thinking-box{background:#0d1a0d;border:1px solid #276749;border-radius:12px;padding:18px 22px;margin-bottom:22px;position:relative}
+    .thinking-box::before{content:'🧠 Chain-of-Thought';position:absolute;top:-10px;left:16px;background:#0d1a0d;padding:0 8px;font-size:0.73rem;font-weight:700;color:#68d391;letter-spacing:.06em}
+    .thinking-box p{font-size:0.875rem;color:#9ae6b4;line-height:1.7;font-style:italic}
+
+    /* Insight cards */
+    .insights-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:24px}
+    .insight-card{background:#1a1f2e;border:1px solid #2d3748;border-radius:14px;padding:18px 20px;border-left:4px solid var(--ic,#4299e1);position:relative}
+    .insight-card.High{--ic:#fc8181}.insight-card.Medium{--ic:#f6ad55}.insight-card.Low{--ic:#68d391}
+    .insight-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .insight-icon{font-size:1.6rem}
+    .insight-title{font-size:0.95rem;font-weight:700;color:#fff}
+    .impact-badge{margin-left:auto;font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:8px;text-transform:uppercase}
+    .impact-High{background:#2d1515;color:#fc8181}
+    .impact-Medium{background:#2d2010;color:#f6ad55}
+    .impact-Low{background:#0d2010;color:#68d391}
+    .insight-detail{font-size:0.83rem;color:#a0aec0;line-height:1.6;margin-bottom:10px}
+    .insight-action{font-size:0.8rem;color:#76e4f7;background:#112030;padding:8px 12px;border-radius:8px;display:flex;align-items:flex-start;gap:6px}
+    .insight-action::before{content:'→';flex-shrink:0}
+
+    /* Section headers */
+    .section-hdr{display:flex;align-items:center;gap:12px;margin:28px 0 16px}
+    .section-hdr h3{font-size:1.05rem;font-weight:800;color:#e2e8f0}
+    .section-hdr .badge{font-size:0.73rem;font-weight:700;padding:3px 10px;border-radius:10px;background:#2d3748;color:#a0aec0}
+    .section-line{flex:1;height:1px;background:linear-gradient(90deg,#2d3748,transparent)}
+
+    /* Forecast section */
+    .forecast-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:18px;margin-bottom:22px}
+    @media(max-width:900px){.forecast-grid{grid-template-columns:1fr}}
+
+    /* PPC cards */
+    .ppc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:24px}
+    .ppc-card{background:#1a1f2e;border:1px solid #2d3748;border-radius:14px;padding:18px}
+    .ppc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .ppc-city{font-size:1rem;font-weight:700;color:#fff}
+    .ppc-state{font-size:0.76rem;color:#718096;margin-top:2px}
+    .ppc-budget{font-size:1.4rem;font-weight:800;color:#68d391}
+    .ppc-budget span{font-size:0.75rem;font-weight:400;color:#718096}
+    .ppc-row{display:flex;justify-content:space-between;font-size:0.8rem;color:#a0aec0;padding:4px 0;border-bottom:1px solid #1e2535}
+    .ppc-row label{color:#718096}
+    .ppc-keywords{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+    .kw{background:#0f1117;border:1px solid #2d3748;border-radius:6px;padding:3px 9px;font-size:0.73rem;color:#a0aec0}
+    .platform-badge{font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:6px}
+    .platform-Google{background:#1a2830;color:#63b3ed}
+    .platform-Meta{background:#1a1830;color:#9f7aea}
+    .platform-Both{background:#1a2820;color:#68d391}
+
+    /* Stock priority table */
+    .stock-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:24px}
+    .stock-card{background:#1a1f2e;border:1px solid #2d3748;border-radius:14px;padding:16px}
+    .stock-pri-High{border-left:4px solid #fc8181}
+    .stock-pri-Medium{border-left:4px solid #f6ad55}
+    .stock-pri-Low{border-left:4px solid #68d391}
+    .stock-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .stock-city{font-weight:700;color:#fff}
+    .stock-state{font-size:0.75rem;color:#718096}
+    .stock-units{font-size:1.3rem;font-weight:800;color:#e2e8f0}
+    .stock-units span{font-size:0.73rem;font-weight:400;color:#718096}
+    .stock-row{font-size:0.79rem;color:#a0aec0;padding:3px 0}
+    .skus{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+    .sku{background:#0f1117;border:1px solid #2d3748;border-radius:5px;padding:2px 8px;font-size:0.7rem;color:#76e4f7;font-family:monospace}
+    .stock-rationale{font-size:0.76rem;color:#718096;margin-top:8px;border-top:1px solid #2d3748;padding-top:7px;font-style:italic}
+
+    /* Retention tier cards */
+    .retention-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:24px}
+    .ret-card{background:#1a1f2e;border:1px solid #2d3748;border-radius:14px;padding:18px}
+    .ret-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+    .ret-arrow{font-size:1.5rem;color:#4299e1}
+    .ret-tiers{font-size:0.9rem;font-weight:700;color:#e2e8f0}
+    .ret-count{font-size:0.75rem;color:#718096;margin-top:2px}
+    .ret-pts{font-size:1.6rem;font-weight:800;color:#9f7aea;margin-bottom:12px}
+    .ret-pts span{font-size:0.75rem;font-weight:400;color:#718096}
+    .ret-strategy{font-size:0.83rem;color:#a0aec0;line-height:1.6;margin-bottom:10px}
+    .ret-incentive{background:#112030;border:1px solid #2c5282;border-radius:8px;padding:9px 12px;font-size:0.8rem;color:#76e4f7}
+    .ret-incentive::before{content:'🎁 ';font-size:1rem}
+    .ret-timeline{font-size:0.75rem;color:#718096;margin-top:8px}
+
+    /* Untapped cities */
+    .untapped-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px;margin-bottom:24px}
+    .untapped-card{background:linear-gradient(135deg,#1a1f2e,#151a28);border:1px dashed #4a5568;border-radius:14px;padding:18px;position:relative;overflow:hidden}
+    .untapped-card::after{content:'UNTAPPED';position:absolute;top:12px;right:-20px;background:#2d3748;color:#718096;font-size:0.6rem;font-weight:800;padding:2px 28px;transform:rotate(30deg);letter-spacing:.1em}
+    .untapped-city{font-size:1rem;font-weight:700;color:#e2e8f0}
+    .untapped-state{font-size:0.76rem;color:#718096;margin-bottom:10px}
+    .untapped-why{font-size:0.82rem;color:#a0aec0;line-height:1.5;margin-bottom:10px}
+    .untapped-action{font-size:0.79rem;color:#9f7aea;background:#1a1040;padding:8px 12px;border-radius:8px}
+    .untapped-action::before{content:'🚀 '}
+
+    /* Executive summary */
+    .exec-summary{background:linear-gradient(135deg,#1a1f2e,#161b27);border:1px solid #553c9a;border-radius:16px;padding:24px 28px;margin-bottom:24px}
+    .exec-summary h3{font-size:0.82rem;font-weight:700;color:#b79aed;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+    .exec-summary p{font-size:0.95rem;color:#e2e8f0;line-height:1.8}
+
+    /* Loading AI */
+    .ai-loading{text-align:center;padding:80px 20px}
+    .ai-loading .pulse-ring{width:70px;height:70px;border:3px solid #553c9a;border-top-color:#9f7aea;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+    .ai-loading h3{font-size:1.1rem;color:#b79aed;margin-bottom:6px}
+    .ai-loading p{font-size:0.83rem;color:#718096}
+    .ai-steps{list-style:none;margin-top:18px;text-align:left;max-width:340px;margin-left:auto;margin-right:auto}
+    .ai-steps li{font-size:0.8rem;color:#718096;padding:4px 0;display:flex;align-items:center;gap:8px}
+    .ai-steps li.done{color:#68d391}.ai-steps li.active{color:#f6ad55}
+    .step-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
+    /* ══════════════════════════════════════
+       CHATBOT
+    ══════════════════════════════════════ */
+    .chat-fab {
+      position:fixed; bottom:28px; right:28px; z-index:1000;
+      width:58px; height:58px; border-radius:50%;
+      background:linear-gradient(135deg,#553c9a,#9f7aea);
+      border:none; cursor:pointer; box-shadow:0 4px 24px rgba(159,122,234,.5);
+      display:flex; align-items:center; justify-content:center;
+      font-size:26px; transition:transform .2s,box-shadow .2s;
+    }
+    .chat-fab:hover { transform:scale(1.1); box-shadow:0 6px 30px rgba(159,122,234,.7); }
+    .chat-fab .notif { position:absolute; top:4px; right:4px; width:12px; height:12px;
+      background:#fc8181; border-radius:50%; border:2px solid #0f1117; display:none; }
+    .chat-fab.has-msg .notif { display:block; }
+
+    .chat-drawer {
+      position:fixed; right:-420px; top:0; bottom:0; width:420px; max-width:100vw;
+      background:#161b27; border-left:1px solid #2d3748; z-index:999;
+      display:flex; flex-direction:column;
+      transition:right .3s cubic-bezier(.4,0,.2,1);
+      box-shadow:-8px 0 40px rgba(0,0,0,.5);
+    }
+    .chat-drawer.open { right:0; }
+
+    .chat-header {
+      background:linear-gradient(135deg,#1a1040,#0d1a30);
+      border-bottom:1px solid #2d3748; padding:16px 18px;
+      display:flex; align-items:center; gap:12px; flex-shrink:0;
+    }
+    .chat-avatar { width:38px; height:38px; border-radius:50%;
+      background:linear-gradient(135deg,#9f7aea,#6b46c1);
+      display:flex; align-items:center; justify-content:center; font-size:18px;
+      box-shadow:0 2px 10px rgba(159,122,234,.4); flex-shrink:0;
+    }
+    .chat-header-info h4 { font-size:0.95rem; font-weight:700; color:#e9d8fd; }
+    .chat-header-info p  { font-size:0.72rem; color:#9f7aea; margin-top:1px; }
+    .chat-status-dot { width:8px; height:8px; background:#68d391; border-radius:50%; animation:pulse 2s infinite; }
+    .chat-close { margin-left:auto; background:none; border:none; color:#718096; cursor:pointer; font-size:1.3rem; padding:4px; line-height:1; }
+    .chat-close:hover { color:#e2e8f0; }
+    .chat-mode-tabs{display:flex;gap:6px;margin-top:10px}
+    .chat-mode-tab{flex:1;padding:5px 0;border-radius:20px;font-size:0.72rem;font-weight:700;border:1px solid #2d3748;background:#1a1f2e;color:#718096;cursor:pointer;transition:all .2s;letter-spacing:.3px}
+    .chat-mode-tab.active{background:linear-gradient(135deg,#553c9a,#9f7aea);border-color:transparent;color:#fff;box-shadow:0 2px 8px rgba(159,122,234,.4)}
+    .chat-mode-tab:not(.active):hover{border-color:#9f7aea;color:#9f7aea}
+
+    .chat-messages {
+      flex:1; overflow-y:auto; padding:18px;
+      display:flex; flex-direction:column; gap:12px;
+      scroll-behavior:smooth;
+    }
+    .chat-messages::-webkit-scrollbar { width:4px; }
+    .chat-messages::-webkit-scrollbar-track { background:transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background:#2d3748; border-radius:4px; }
+
+    .msg { display:flex; gap:10px; align-items:flex-start; max-width:100%; }
+    .msg.user { flex-direction:row-reverse; }
+    .msg-avatar { width:28px; height:28px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center; font-size:13px; margin-top:2px;
+    }
+    .msg.bot .msg-avatar  { background:linear-gradient(135deg,#553c9a,#9f7aea); }
+    .msg.user .msg-avatar { background:linear-gradient(135deg,#2b6cb0,#4299e1); }
+    .msg-bubble {
+      padding:10px 14px; border-radius:14px; font-size:0.84rem; line-height:1.65;
+      max-width:calc(100% - 46px); word-wrap:break-word;
+    }
+    .msg.bot .msg-bubble {
+      background:#1a1f2e; border:1px solid #2d3748; color:#e2e8f0;
+      border-bottom-left-radius:4px;
+    }
+    .msg.user .msg-bubble {
+      background:linear-gradient(135deg,#2b6cb0,#2c5282); color:#fff;
+      border-bottom-right-radius:4px;
+    }
+    .msg-bubble strong { color:#9f7aea; }
+    .msg-bubble ul { padding-left:16px; margin:4px 0; }
+    .msg-bubble li { margin:2px 0; }
+    .msg-time { font-size:0.65rem; color:#4a5568; margin-top:2px;
+      text-align:right; width:100%; display:block; }
+    .msg.bot .msg-time { text-align:left; }
+
+    .typing-indicator { display:flex; gap:4px; align-items:center; padding:10px 14px;
+      background:#1a1f2e; border:1px solid #2d3748; border-radius:14px; border-bottom-left-radius:4px;
+      max-width:70px;
+    }
+    .typing-dot { width:6px; height:6px; background:#9f7aea; border-radius:50; animation:typingPulse 1.2s infinite; }
+    .typing-dot:nth-child(2) { animation-delay:.2s; }
+    .typing-dot:nth-child(3) { animation-delay:.4s; }
+    @keyframes typingPulse { 0%,60%,100%{opacity:.2;transform:scale(.8)} 30%{opacity:1;transform:scale(1)} }
+
+    .chat-suggestions { padding:0 18px 10px; display:flex; flex-wrap:wrap; gap:6px; flex-shrink:0; }
+    .suggestion { background:#1a1f2e; border:1px solid #2d3748; border-radius:16px;
+      padding:5px 12px; font-size:0.75rem; color:#9f7aea; cursor:pointer;
+      transition:all .2s; white-space:nowrap;
+    }
+    .suggestion:hover { background:#2d3748; border-color:#9f7aea; color:#e9d8fd; }
+
+    .chat-input-area {
+      padding:14px 18px; border-top:1px solid #2d3748; display:flex; gap:10px;
+      align-items:flex-end; flex-shrink:0;
+      background:linear-gradient(180deg,transparent,#161b27);
+    }
+    .chat-input {
+      flex:1; background:#0f1117; border:1px solid #2d3748; border-radius:12px;
+      color:#e2e8f0; padding:10px 14px; font-size:0.875rem; outline:none;
+      resize:none; max-height:100px; min-height:40px; font-family:inherit;
+      line-height:1.5; transition:border-color .2s;
+    }
+    .chat-input:focus { border-color:#9f7aea; }
+    .chat-input::placeholder { color:#4a5568; }
+    .chat-send {
+      background:linear-gradient(135deg,#553c9a,#6b46c1); border:none; border-radius:10px;
+      color:#fff; padding:10px 14px; cursor:pointer; font-size:1rem;
+      transition:opacity .2s; flex-shrink:0; height:40px; display:flex;
+      align-items:center; justify-content:center;
+    }
+    .chat-send:hover   { opacity:.85; }
+    .chat-send:disabled { opacity:.4; cursor:not-allowed; }
+    .chat-footer { font-size:0.65rem; color:#4a5568; text-align:center; padding-bottom:8px; flex-shrink:0; }
+    .d-none       { display: none; }
+    .spinner-icon { font-size: 2.5rem; animation: spin 1s linear infinite; display: inline-block; }
+    .loading-title { margin-top: 14px; }
+    .table-card   { padding: 0; overflow: hidden; }
+    #analyzeBtn   { min-width: 160px; }
+
+    /* ── NBC Nexus Tab ── */
+    .nexus-banner{background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);border:1px solid #2d3748;border-radius:16px;padding:22px 26px;display:flex;align-items:center;gap:18px;margin-bottom:22px;flex-wrap:wrap}
+    .nexus-logo{font-size:2.5rem;flex-shrink:0}
+    .nexus-banner h2{font-size:1.2rem;font-weight:800;color:#fff}
+    .nexus-banner p{font-size:0.82rem;color:#90cdf4;margin-top:4px}
+    .status-badge{display:inline-block;font-size:0.7rem;font-weight:700;padding:2px 9px;border-radius:8px;text-transform:uppercase;letter-spacing:.04em}
+    .badge-Healthy{background:#0d2c1a;color:#68d391;border:1px solid #276749}
+    .badge-Degrading{background:#2d2010;color:#f6ad55;border:1px solid #975a16}
+    .badge-Critical{background:#2d1515;color:#fc8181;border:1px solid #9b2c2c}
+    .badge-Premium{background:#0d1a30;color:#63b3ed;border:1px solid #2b6cb0}
+    .badge-Standard{background:#1a1f2e;color:#a0aec0;border:1px solid #4a5568}
+    .badge-At-Risk{background:#2d1515;color:#fc8181;border:1px solid #9b2c2c}
+    .nexus-grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px}
+    @media(max-width:800px){.nexus-grid2{grid-template-columns:1fr}}
+    .predictor-card{background:#1a1f2e;border:1px solid #2d3748;border-radius:14px;padding:20px}
+    .predictor-card h4{font-size:0.95rem;font-weight:700;color:#e2e8f0;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+    .form-group{display:flex;flex-direction:column;gap:4px}
+    .form-group label{font-size:0.73rem;color:#718096;font-weight:600;text-transform:uppercase}
+    .form-group input{background:#0f1117;border:1px solid #2d3748;border-radius:8px;color:#e2e8f0;padding:8px 12px;font-size:0.85rem;outline:none;transition:border-color .2s}
+    .form-group input:focus{border-color:#4299e1}
+    .predict-result{margin-top:12px;padding:12px 16px;border-radius:10px;font-size:0.9rem;font-weight:700;display:none}
+    .predict-result.ok{background:#0d2c1a;border:1px solid #276749;color:#68d391}
+    .predict-result.err{background:#2d1515;border:1px solid #9b2c2c;color:#fc8181}
+    .rul-bar{height:6px;border-radius:3px;margin-top:6px;background:#2d3748}
+    .rul-fill{height:100%;border-radius:3px;transition:width .5s}
+    .nexus-api-badge{margin-left:auto;font-size:0.68rem;background:#0d1a30;border:1px solid #2b6cb0;color:#63b3ed;padding:3px 10px;border-radius:8px;font-weight:600}
+    /* ── Nexus AI Results ── */
+    .nxi-banner{background:linear-gradient(135deg,#0d1a2e,#1a2d4a,#0d2433);border:1px solid #2b4f7a;border-radius:14px;padding:16px 22px;margin-bottom:18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+    .nxi-score-ring{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;border:3px solid #4299e1;flex-shrink:0;transition:border-color .4s,color .4s}
+    .nxi-score-val{font-size:1.3rem;font-weight:900;line-height:1}
+    .nxi-score-lbl{font-size:0.46rem;font-weight:600;letter-spacing:.8px;opacity:.7}
+    .nxi-thinking{background:#0a1a12;border:1px solid #276749;border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:0.77rem;color:#68d391;line-height:1.7;white-space:pre-wrap}
+    .nxi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-bottom:20px}
+    .nxi-card{background:#1a1f2e;border-radius:12px;padding:16px;border-left:4px solid var(--nc,#4299e1);display:flex;flex-direction:column;gap:8px}
+    .nxi-card.High{--nc:#fc8181}.nxi-card.Medium{--nc:#f6ad55}.nxi-card.Low{--nc:#68d391}
+    .nxi-card-hdr{display:flex;align-items:center;gap:8px}
+    .nxi-card-icon{font-size:1.2rem}.nxi-card-title{font-size:0.88rem;font-weight:700;color:#e2e8f0;flex:1}
+    .nxi-prio{font-size:0.68rem;padding:2px 8px;border-radius:6px;font-weight:700}
+    .nxi-prio.High{background:#2d1515;color:#fc8181}.nxi-prio.Medium{background:#2d2215;color:#f6ad55}.nxi-prio.Low{background:#0d2c1a;color:#68d391}
+    .nxi-detail{font-size:0.78rem;color:#90a0b4;line-height:1.5}
+    .nxi-action{font-size:0.76rem;color:#76e4f7;background:#0a1929;border-radius:6px;padding:6px 10px;border-left:2px solid #4299e1}
+    .maint-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+    .maint-card{background:#1a1f2e;border-radius:10px;padding:14px;border-top:3px solid var(--uc,#4299e1)}
+    .maint-card.Immediate{--uc:#fc8181}.maint-card.Soon{--uc:#f6ad55}.maint-card.Planned{--uc:#68d391}
+    .maint-unit{font-family:monospace;color:#76e4f7;font-size:0.85rem;font-weight:700}
+    .maint-loc{font-size:0.7rem;color:#718096;margin:2px 0}
+    .maint-rul{font-size:1.3rem;font-weight:900;color:var(--uc,#4299e1);margin:4px 0}
+    .maint-urg{font-size:0.68rem;font-weight:700;color:var(--uc)}
+    .maint-rec{font-size:0.74rem;color:#90a0b4;margin-top:4px;line-height:1.4}
+    .loc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:12px;margin-bottom:20px}
+    .loc-card{background:#1a1f2e;border-radius:10px;padding:14px;border-right:4px solid var(--lc,#4299e1)}
+    .loc-card.High{--lc:#fc8181}.loc-card.Medium{--lc:#f6ad55}.loc-card.Low{--lc:#68d391}
+    /* ── Nexus inline chat ── */
+    .nx-chat{background:#111827;border:1px solid #2d3748;border-radius:16px;margin-bottom:22px;overflow:hidden}
+    .nx-chat-hdr{background:linear-gradient(135deg,#0d1a2e,#1a2d4a);padding:12px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #2d3748}
+    .nx-chat-hdr h4{font-size:0.9rem;font-weight:700;color:#90cdf4;flex:1;margin:0}
+    .nx-chat-msgs{height:230px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+    .nxmsg{max-width:82%;padding:9px 14px;border-radius:12px;font-size:0.81rem;line-height:1.55;word-break:break-word}
+    .nxmsg.user{align-self:flex-end;background:#1a3a5c;color:#e2e8f0;border-bottom-right-radius:4px}
+    .nxmsg.bot{align-self:flex-start;background:#1a1f2e;color:#a0b4c8;border-bottom-left-radius:4px;border-left:3px solid #4299e1}
+    .nx-sugg{display:flex;gap:7px;flex-wrap:wrap;padding:8px 14px;background:#0a0e17;border-bottom:1px solid #1a2535}
+    .nx-sugg-btn{background:#1a2d4a;border:1px solid #2b4f7a;color:#90cdf4;border-radius:8px;padding:5px 11px;font-size:0.71rem;cursor:pointer;transition:background .2s}
+    .nx-sugg-btn:hover{background:#1e3a5f}
+    .nx-chat-foot{display:flex;gap:8px;padding:10px 14px;background:#0a0e17;border-top:1px solid #2d3748}
+    .nx-chat-input{flex:1;background:#1a1f2e;border:1px solid #2d3748;border-radius:10px;color:#e2e8f0;padding:9px 14px;font-size:0.82rem;outline:none;resize:none}
+    .nx-chat-input:focus{border-color:#4299e1}
+    .nx-chat-send{background:linear-gradient(135deg,#2b6cb0,#3182ce);border:none;border-radius:10px;color:#fff;padding:0 18px;cursor:pointer;font-size:1rem;transition:opacity .2s}
+    .nx-chat-send:hover{opacity:.85}
+    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:20px}
+    @media(max-width:900px){.grid3{grid-template-columns:1fr}}
+    .city-tier-tbl td{text-align:center}.city-tier-tbl td:first-child{text-align:left;font-weight:600}
+    .nx-chart-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+    @media(max-width:800px){.nx-chart-row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⚙️</div>
+  <div>
+    <h1>NBC Bearing — Analytics Hub</h1>
+    <p>Mechanic Loyalty Dashboard + AI Sales Intelligence</p>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('dashboard',this)">📊 Dashboard</button>
+    <button class="tab" onclick="switchTab('ai',this)">🤖 AI Insights</button>
+    <button class="tab" onclick="switchTab('nexus',this)">🏭 NBC Nexus</button>
+    <button class="tab" onclick="switchTab('nexusai',this)">🧠 Nexus AI</button>
+  </div>
+  <div class="hdr-btns">
+    <button class="btn btn-green" id="wappBtn" onclick="syncFromWhatsApp()">📱 Sync WhatsApp</button>
+    <button class="btn btn-blue" id="refreshBtn" onclick="loadData()">🗓️ Refresh</button>
+  </div>
+</header>
+
+<div class="status-bar">
+  <div class="dot" id="statusDot"></div>
+  <span id="statusText">Loading data from CSV…</span>
+</div>
+
+<!-- ══ DASHBOARD TAB ══════════════════════════════════════════════════════ -->
+<main>
+<div class="tab-pane active" id="pane-dashboard">
+  <div class="empty" id="dash-loading">
+    <div class="spinner-icon">↻</div>
+    <h2 class="loading-title">Loading…</h2>
+    <p>Reading from data/mechanics.csv</p>
+  </div>
+  <div id="dash-content" class="d-none">
+    <div class="stats" id="stat-cards"></div>
+    <div class="grid2">
+      <div class="card"><div class="card-title">Tier Distribution</div><div class="chart-wrap"><canvas id="tierChart"></canvas></div></div>
+      <div class="card"><div class="card-title">Top Cities by Mechanics</div><div class="chart-wrap"><canvas id="cityChart"></canvas></div></div>
+    </div>
+    <div class="grid3">
+      <div class="card"><div class="card-title">Points Distribution</div><div class="chart-wrap"><canvas id="pointsHistChart"></canvas></div></div>
+      <div class="card"><div class="card-title">Top 10 by Photo Submissions</div><div class="chart-wrap" style="height:240px"><canvas id="photosChart"></canvas></div></div>
+      <div class="card"><div class="card-title">Monthly Registrations</div><div class="chart-wrap"><canvas id="joinChart"></canvas></div></div>
+    </div>
+    <div class="card" style="margin-bottom:22px">
+      <div class="card-title">City × Tier Breakdown <span style="font-size:0.75rem;font-weight:400;color:#718096">(Top 10 cities)</span></div>
+      <div class="tw"><table class="city-tier-tbl"><thead><tr><th style="text-align:left">City</th><th>🥉 Bronze</th><th>🥈 Silver</th><th>🥇 Gold</th><th>💎 Diamond</th><th>Total</th></tr></thead><tbody id="city-tier-tbody"></tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Mechanic Leaderboard</div>
+      <div class="toolbar">
+        <input type="search" id="search" placeholder="Search name or phone…" oninput="renderTable()"/>
+        <select id="tierFilter" onchange="renderTable()">
+          <option value="">All Tiers</option>
+          <option>Bronze</option><option>Silver</option><option>Gold</option><option>Diamond</option>
+        </select>
+        <span class="count" id="rowCount"></span>
+      </div>
+      <div class="tw"><table><thead><tr>
+        <th>#</th><th>Name</th><th>Phone</th><th>Tier</th><th>Points</th>
+        <th>Photos</th><th>City</th><th>Device</th><th>Joined</th>
+      </tr></thead><tbody id="tbody"></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ AI INSIGHTS TAB ════════════════════════════════════════════════════ -->
+<div class="tab-pane" id="pane-ai">
+  <div class="ai-banner">
+    <div class="ai-logo">🤖</div>
+    <div>
+      <h2>Gemini AI Sales Intelligence</h2>
+      <p>Chain-of-thought analysis using your real mechanic data — sales forecasting, PPC planning, stock supply recommendations and retention strategies powered by Gemini 2.5 Flash.</p>
+    </div>
+    <button class="btn btn-purple" id="analyzeBtn" onclick="runAnalysis()">
+      ✨ Analyze Now
+    </button>
+  </div>
+
+  <div id="ai-placeholder" class="empty">
+    <div class="ico">🧠</div>
+    <h2>AI analysis not run yet</h2>
+    <p>Click <strong>✨ Analyze Now</strong> above to generate sales forecasts, PPC plans, and more.</p>
+  </div>
+
+  <div id="ai-loading" class="ai-loading d-none">
+    <div class="pulse-ring"></div>
+    <h3>Gemini is thinking…</h3>
+    <p>Running chain-of-thought sales analysis</p>
+    <ul class="ai-steps" id="ai-steps">
+      <li class="done"><span class="step-dot"></span> Reading mechanic CSV data</li>
+      <li class="active"><span class="step-dot"></span> Aggregating city & tier stats</li>
+      <li><span class="step-dot"></span> Building chain-of-thought prompt</li>
+      <li><span class="step-dot"></span> Calling Gemini 2.5 Flash Preview</li>
+      <li><span class="step-dot"></span> Parsing + rendering AI response</li>
+    </ul>
+  </div>
+
+  <div id="ai-results" class="d-none">
+    <!-- Thinking summary -->
+    <div class="thinking-box" id="ai-thinking"></div>
+
+    <!-- Key Insights -->
+    <div class="section-hdr">
+      <h3>💡 Key Sales Insights</h3>
+      <div class="badge" id="insight-count"></div>
+      <div class="section-line"></div>
+    </div>
+    <div class="insights-grid" id="insights-grid"></div>
+
+    <!-- 30-Day Forecast -->
+    <div class="section-hdr">
+      <h3>📈 30-Day Sales Forecast</h3>
+      <div class="badge">City-Level Projections</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="forecast-grid">
+      <div class="card"><div class="card-title">Projected Photo Submissions</div><div class="chart-wrap"><canvas id="forecastChart"></canvas></div></div>
+      <div class="card table-card">
+        <div class="tw"><table><thead><tr>
+          <th>City</th><th>State</th><th>Mechanics</th><th>Cur. Photos</th>
+          <th>+30d Photos</th><th>Growth</th><th>Confidence</th>
+        </tr></thead><tbody id="forecast-tbody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- PPC Plan -->
+    <div class="section-hdr">
+      <h3>📢 PPC Campaign Plan</h3>
+      <div class="badge" id="ppc-count"></div>
+      <div class="section-line"></div>
+    </div>
+    <div class="ppc-grid" id="ppc-grid"></div>
+
+    <!-- Stock Supply -->
+    <div class="section-hdr">
+      <h3>📦 Stock Supply Recommendations</h3>
+      <div class="badge" id="stock-count"></div>
+      <div class="section-line"></div>
+    </div>
+    <div class="stock-grid" id="stock-grid"></div>
+
+    <!-- Retention -->
+    <div class="section-hdr">
+      <h3>🎯 Mechanic Retention Strategies</h3>
+      <div class="badge">Tier Progression Playbook</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="retention-grid" id="retention-grid"></div>
+
+    <!-- Untapped Cities -->
+    <div class="section-hdr">
+      <h3>🗺️ Untapped Market Opportunities</h3>
+      <div class="badge" id="untapped-count"></div>
+      <div class="section-line"></div>
+    </div>
+    <div class="untapped-grid" id="untapped-grid"></div>
+
+    <!-- Executive Summary -->
+    <div class="section-hdr">
+      <h3>📋 Executive Summary</h3>
+      <div class="section-line"></div>
+    </div>
+    <div class="exec-summary">
+      <h3>AI Generated Summary</h3>
+      <p id="exec-summary-text"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NBC NEXUS TAB ══════════════════════════════════════════════════════ -->
+<div class="tab-pane" id="pane-nexus">
+
+  <!-- Banner -->
+  <div class="nexus-banner">
+    <div class="nexus-logo">⚙️</div>
+    <div>
+      <h2>NBC Nexus — Industrial IoT &amp; Dealer Intelligence</h2>
+      <p>Live data from bearing assets + dealer network. Powered by ML models deployed on Hugging Face Spaces.</p>
+    </div>
+    <button class="btn btn-blue nexus-api-badge" onclick="loadNexus()" id="nexusRefreshBtn">↻ Refresh Data</button>
+    <a href="https://vivek45537-nbc.hf.space/docs" target="_blank" class="btn btn-blue" style="font-size:0.75rem;padding:7px 12px">🔗 API Docs</a>
+  </div>
+
+  <!-- Bearing stat cards -->
+  <div class="stats" id="nexus-bearing-stats"></div>
+
+  <!-- Bearing table -->
+  <div class="section-hdr">
+    <h3>🔩 Bearing Asset Monitor</h3>
+    <div class="section-line"></div>
+    <div class="badge" id="nexus-bear-count"></div>
+    <select id="bearStatusFilter" onchange="renderBearingTable()" style="background:#1a1f2e;border:1px solid #2d3748;color:#a0aec0;border-radius:8px;padding:4px 10px;font-size:0.8rem">
+      <option value="">All Status</option>
+      <option>Healthy</option><option>Degrading</option><option>Critical</option>
+    </select>
+  </div>
+  <div class="card table-card" style="margin-bottom:22px">
+    <div class="tw"><table><thead><tr>
+      <th>Unit</th><th>Location</th><th>Status</th><th>RUL Days</th>
+      <th>Temp °C</th><th>Vibration</th><th>RPM</th><th>Load</th><th>Lubrication</th><th>Failure Mode</th>
+    </tr></thead><tbody id="nexus-bear-tbody"></tbody></table></div>
+  </div>
+
+  <!-- Bearing charts row 1 -->
+  <div class="nx-chart-row">
+    <div class="card"><div class="card-title">Bearing Status Distribution</div><div class="chart-wrap"><canvas id="nxStatusChart"></canvas></div></div>
+    <div class="card"><div class="card-title">RUL Distribution (Remaining Useful Life)</div><div class="chart-wrap"><canvas id="nxRulChart"></canvas></div></div>
+  </div>
+  <!-- Bearing charts row 2 -->
+  <div class="nx-chart-row">
+    <div class="card"><div class="card-title">Failure Mode Breakdown</div><div class="chart-wrap"><canvas id="nxFailChart"></canvas></div></div>
+    <div class="card"><div class="card-title">Units by Location (Stacked by Status)</div><div class="chart-wrap"><canvas id="nxLocChart"></canvas></div></div>
+  </div>
+  <!-- Bearing charts row 3 -->
+  <div class="nx-chart-row">
+    <div class="card"><div class="card-title">🌡️ Temperature vs Vibration <span style="font-size:0.72rem;font-weight:400;color:#718096">(coloured by status)</span></div><div class="chart-wrap"><canvas id="nxTempVibChart"></canvas></div></div>
+    <div class="card"><div class="card-title">📡 Avg Sensor Readings by Location <span style="font-size:0.72rem;font-weight:400;color:#718096">(normalised)</span></div><div class="chart-wrap"><canvas id="nxSensorLocChart"></canvas></div></div>
+  </div>
+  <!-- Bearing full-width row -->
+  <div class="card" style="margin-bottom:22px">
+    <div class="card-title">🛢️ Lubrication Level Distribution by Status</div>
+    <div class="chart-wrap" style="height:220px"><canvas id="nxLubChart"></canvas></div>
+  </div>
+  <div class="stats" id="nexus-dealer-stats"></div>
+
+  <!-- Dealer table -->
+  <div class="section-hdr">
+    <h3>🏪 Dealer Network</h3>
+    <div class="section-line"></div>
+    <div class="badge" id="nexus-dealer-count"></div>
+  </div>
+  <div class="card table-card" style="margin-bottom:22px">
+    <div class="tw"><table><thead><tr>
+      <th>ID</th><th>Name</th><th>Location</th><th>Segment</th>
+      <th>Inventory</th><th>Responsiveness</th><th>Turnaround Hrs</th>
+      <th>Tech Score</th><th>CSI</th>
+    </tr></thead><tbody id="nexus-dealer-tbody"></tbody></table></div>
+  </div>
+
+  <!-- Dealer charts -->
+  <div class="nx-chart-row">
+    <div class="card"><div class="card-title">Dealer Customer Satisfaction Index</div><div class="chart-wrap" style="height:280px"><canvas id="nxDealerCsiChart"></canvas></div></div>
+    <div class="card"><div class="card-title">Responsiveness vs Turnaround Time</div><div class="chart-wrap"><canvas id="nxDealerRespChart"></canvas></div></div>
+  </div>
+  <!-- Dealer charts row 2 -->
+  <div class="nx-chart-row">
+    <div class="card"><div class="card-title">🏅 Dealer Segment Breakdown</div><div class="chart-wrap"><canvas id="nxDealerSegChart"></canvas></div></div>
+    <div class="card"><div class="card-title">🔬 Tech Score vs Customer Satisfaction <span style="font-size:0.72rem;font-weight:400;color:#718096">(bubble = inventory)</span></div><div class="chart-wrap"><canvas id="nxTechCsiChart"></canvas></div></div>
+  </div>
+  <!-- Dealer radar full-width -->
+  <div class="card" style="margin-bottom:22px">
+    <div class="card-title">🕸️ Dealer Segment Radar — KPI Comparison <span style="font-size:0.72rem;font-weight:400;color:#718096">(Premium vs Standard vs At-Risk)</span></div>
+    <div class="chart-wrap" style="height:300px"><canvas id="nxDealerRadarChart"></canvas></div>
+  </div>
+  <div class="nexus-grid2">
+
+    <!-- RUL Predictor -->
+    <div class="predictor-card">
+      <h4>🔮 RUL Predictor <span class="nexus-api-badge">Live HF API</span></h4>
+      <div class="form-row">
+        <div class="form-group"><label>Operating Hours</label><input type="number" id="rul_hours" value="10000" min="0"></div>
+        <div class="form-group"><label>RPM</label><input type="number" id="rul_rpm" value="1400" min="0"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Temperature °C</label><input type="number" id="rul_temp" value="60" step="0.1"></div>
+        <div class="form-group"><label>Vibration mm/s</label><input type="number" id="rul_vib" value="1.0" step="0.01"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Lubrication %</label><input type="number" id="rul_lub" value="80" min="0" max="100"></div>
+        <div class="form-group"><label>Load Factor</label><input type="number" id="rul_load" value="0.8" step="0.01" min="0"></div>
+      </div>
+      <button class="btn btn-blue" onclick="predictRUL()" id="rulBtn" style="width:100%;justify-content:center">⚡ Predict RUL</button>
+      <div class="predict-result" id="rul-result"></div>
+    </div>
+
+    <!-- Dealer Segmentor -->
+    <div class="predictor-card">
+      <h4>🏷️ Dealer Segment Predictor <span class="nexus-api-badge">Live HF API</span></h4>
+      <div class="form-row">
+        <div class="form-group"><label>Inventory Level</label><input type="number" id="dl_inv" value="200" min="0"></div>
+        <div class="form-group"><label>Responsiveness Score</label><input type="number" id="dl_resp" value="4.0" step="0.1" min="0" max="5"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Turnaround Hours</label><input type="number" id="dl_turn" value="24" min="0"></div>
+        <div class="form-group"><label>Customer Satisfaction</label><input type="number" id="dl_csi" value="85" min="0" max="100"></div>
+      </div>
+      <button class="btn btn-blue" onclick="predictDealer()" id="dealerBtn" style="width:100%;justify-content:center;margin-top:10px">⚡ Classify Dealer</button>
+      <div class="predict-result" id="dealer-result"></div>
+    </div>
+
+  <!-- teaser card linking to Nexus AI tab -->
+  <div style="margin-top:18px;background:linear-gradient(135deg,#1a1f3c,#0f172a);border:1px solid #2d3748;border-radius:14px;padding:22px 24px;display:flex;align-items:center;gap:18px">
+    <div style="font-size:2.4rem">🧠</div>
+    <div style="flex:1">
+      <div style="font-size:0.95rem;font-weight:700;color:#e2e8f0;margin-bottom:4px">Nexus AI — Fleet Intelligence</div>
+      <div style="font-size:0.8rem;color:#718096;line-height:1.5">AI-powered fleet health report, maintenance schedule, dealer insights &amp; interactive IoT chat.</div>
+    </div>
+    <button class="btn btn-purple" onclick="switchTab('nexusai', document.querySelectorAll('.tab')[3])">🧠 Open Nexus AI →</button>
+  </div>
+
+  </div>
+</div>
+
+<!-- ══ NEXUS AI TAB ══════════════════════════════════════════════════════ -->
+<div class="tab-pane" id="pane-nexusai">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap">
+    <div style="flex:1">
+      <h2 style="font-size:1.1rem;font-weight:800;color:#e2e8f0;margin:0">🧠 Nexus AI — Fleet Intelligence</h2>
+      <p style="font-size:0.78rem;color:#718096;margin:3px 0 0">Gemini-powered analysis of your IoT bearing fleet &amp; dealer network</p>
+    </div>
+    <button class="btn btn-purple" onclick="runNexusAnalysis()" id="nexusAnalyzeBtn2">✨ AI Analyze</button>
+  </div>
+
+  <!-- loading spinner -->
+  <div id="nxi-loading" style="display:none;text-align:center;padding:40px 20px">
+    <div style="width:50px;height:50px;border-radius:50%;border:3px solid #1a2d4a;border-top-color:#4299e1;animation:spin .9s linear infinite;margin:0 auto 14px"></div>
+    <p style="color:#4a5568;font-size:0.88rem">Gemini is analyzing your fleet &amp; dealer network…</p>
+  </div>
+
+  <!-- results -->
+  <div id="nxi-results" style="display:none">
+    <div class="nxi-banner">
+      <div style="flex:1">
+        <h3 style="font-size:1rem;font-weight:800;color:#fff;margin:0 0 6px">🧠 Nexus AI Fleet Report</h3>
+        <p id="nxi-exec" style="font-size:0.83rem;color:#90cdf4;margin:0;line-height:1.5"></p>
+      </div>
+      <div class="nxi-score-ring" id="nxi-score-ring">
+        <span class="nxi-score-val" id="nxi-score-val">—</span>
+        <span class="nxi-score-lbl">HEALTH</span>
+      </div>
+    </div>
+    <div class="nxi-thinking" id="nxi-thinking" style="display:none"></div>
+    <div class="section-hdr"><h3>💡 Fleet Insights</h3><div class="section-line"></div><div class="badge" id="nxi-b-insights"></div></div>
+    <div class="nxi-grid" id="nxi-insights"></div>
+    <div class="section-hdr"><h3>🔧 Maintenance Schedule</h3><div class="section-line"></div><div class="badge" id="nxi-b-maint"></div></div>
+    <div class="maint-grid" id="nxi-maint"></div>
+    <div class="section-hdr"><h3>🏪 Dealer Performance Insights</h3><div class="section-line"></div></div>
+    <div class="nxi-grid" id="nxi-dealer"></div>
+    <div class="section-hdr"><h3>📍 Location Risk</h3><div class="section-line"></div></div>
+    <div class="loc-grid" id="nxi-loc"></div>
+  </div>
+
+  <!-- AI chat replaced by centralized chatbot -->
+  <div style="margin-top:6px;background:linear-gradient(135deg,#1a1040,#0d1a30);border:1px solid #2d3748;border-radius:14px;padding:18px 22px;display:flex;align-items:center;gap:16px">
+    <div style="font-size:2rem">💬</div>
+    <div style="flex:1">
+      <div style="font-size:0.88rem;font-weight:700;color:#e9d8fd;margin-bottom:3px">Ask Nexus IoT AI</div>
+      <div style="font-size:0.78rem;color:#718096;line-height:1.5">Open the AI Assistant (bottom-right) and select <strong style="color:#9f7aea">🏭 Nexus IoT</strong> to query bearings, RUL, dealers and more.</div>
+    </div>
+    <button class="btn btn-purple" onclick="openNexusChat()" style="white-space:nowrap">💬 Open Chat</button>
+  </div>
+</div>
+
+</main>
+
+<!-- ══ CHATBOT (Centralized) ═══════════════════════════════════════════ -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()" title="AI Assistant">
+  🤖<span class="notif" id="chatNotif"></span>
+</button>
+
+<div class="chat-drawer" id="chatDrawer">
+  <div class="chat-header">
+    <div class="chat-avatar" id="chatAvatar">🤖</div>
+    <div style="flex:1">
+      <div class="chat-header-info">
+        <h4 id="chatTitle">NBC AI Assistant</h4>
+        <p id="chatSubtitle">Powered by Gemini ⚡</p>
+      </div>
+      <div class="chat-mode-tabs">
+        <button class="chat-mode-tab active" id="cmtab-sales" onclick="switchChatMode('sales')">💼 Sales &amp; Mechanics</button>
+        <button class="chat-mode-tab" id="cmtab-nexus" onclick="switchChatMode('nexus')">🏭 Nexus IoT</button>
+      </div>
+    </div>
+    <div class="chat-status-dot"></div>
+    <button class="chat-close" onclick="toggleChat()" title="Close">✕</button>
+  </div>
+
+  <div class="chat-messages" id="chatMessages"></div>
+
+  <div class="chat-suggestions" id="chatSuggestions">
+    <div id="sugg-sales">
+      <span class="suggestion" onclick="sendSuggestion(this)">📊 Top performing cities?</span>
+      <span class="suggestion" onclick="sendSuggestion(this)">📈 30-day sales forecast</span>
+      <span class="suggestion" onclick="sendSuggestion(this)">🎯 How to increase engagement?</span>
+      <span class="suggestion" onclick="sendSuggestion(this)">💡 Best cities for PPC?</span>
+      <span class="suggestion" onclick="sendSuggestion(this)">📦 Stock priority cities?</span>
+      <span class="suggestion" onclick="sendSuggestion(this)">🏆 Who is close to tier upgrade?</span>
+    </div>
+    <div id="sugg-nexus" style="display:none">
+      <span class="suggestion" onclick="sendSuggestion(this)">🔴 Most critical bearings right now?</span>
+      <span class="suggestion" onclick="sendSuggestion(this)">📅 Which units need replacement soon?</span>
+      <span class="suggestion" onclick="sendSuggestion(this)">🏪 Which dealers are at risk?</span>
+      <span class="suggestion" onclick="sendSuggestion(this)">📊 Overall fleet health summary</span>
+      <span class="suggestion" onclick="sendSuggestion(this)">🌡️ Bearings with high temperature?</span>
+      <span class="suggestion" onclick="sendSuggestion(this)">⚙️ Common failure modes?</span>
+    </div>
+  </div>
+
+  <div class="chat-input-area">
+    <textarea class="chat-input" id="chatInput" placeholder="Ask about mechanics, sales, bearings, dealers…" rows="1"
+      onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="chat-send" id="chatSendBtn" onclick="sendChat()">➤</button>
+  </div>
+  <div class="chat-footer">AI responses may not always be accurate. Verify critical decisions.</div>
+</div>
+<script>
+  /* ═══════════════════════════════════════════════
+     CHATBOT
+  ═══════════════════════════════════════════════ */
+  let chatOpen  = false;
+  let chatBusy  = false;
+  let chatMode  = 'sales'; // 'sales' | 'nexus'
+  let salesHistory = [];
+  let nexusChatHistory = [];
+
+  const CHAT_CONFIG = {
+    sales: {
+      endpoint: '/chat',
+      avatar:   '🤖',
+      title:    'NBC Sales AI',
+      subtitle: 'Mechanics & Sales Intelligence ⚡',
+      welcome:  '👋 Hi! I\'m your **NBC Sales AI**. Ask me anything — city forecasts, tier performance, PPC planning, stock supply, retention strategies, or any sales question!',
+      placeholder: 'Ask about mechanics, cities, tiers, forecasts…',
+    },
+    nexus: {
+      endpoint: '/nexus-chat',
+      avatar:   '⚙️',
+      title:    'NBC Nexus AI',
+      subtitle: 'Industrial IoT & Dealer Intelligence ⚡',
+      welcome:  '⚙️ Nexus IoT AI here! Ask me about bearing health, RUL predictions, failure modes, dealer performance, location risks, or anything about your industrial fleet.',
+      placeholder: 'Ask about bearings, RUL, failure modes, dealers…',
+    },
+  };
+
+  // welcome message shown on load
+  window.addEventListener('DOMContentLoaded', () => {
+    addBotMsg(CHAT_CONFIG.sales.welcome);
+  });
+
+  function switchChatMode(mode) {
+    if (chatBusy) return;
+    chatMode = mode;
+    const cfg = CHAT_CONFIG[mode];
+    // update header
+    document.getElementById('chatAvatar').textContent  = cfg.avatar;
+    document.getElementById('chatTitle').textContent   = cfg.title;
+    document.getElementById('chatSubtitle').textContent = cfg.subtitle;
+    document.getElementById('chatInput').placeholder   = cfg.placeholder;
+    // update tab pills
+    document.querySelectorAll('.chat-mode-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('cmtab-' + mode).classList.add('active');
+    // switch suggestion chips
+    document.getElementById('sugg-sales').style.display  = mode === 'sales'  ? '' : 'none';
+    document.getElementById('sugg-nexus').style.display  = mode === 'nexus'  ? '' : 'none';
+    document.getElementById('chatSuggestions').style.display = '';
+    // clear message pane and show mode-specific welcome if switching to a fresh session
+    const msgs = document.getElementById('chatMessages');
+    const history = mode === 'sales' ? salesHistory : nexusChatHistory;
+    msgs.innerHTML = '';
+    if (history.length === 0) {
+      addBotMsg(cfg.welcome);
+    } else {
+      // re-render existing history for this mode
+      history.forEach(h => {
+        if (h.role === 'user') addUserMsg(h.text);
+        else addBotMsgRaw(h.text);
+      });
+    }
+    document.getElementById('chatInput').focus();
+  }
+
+  function openNexusChat() {
+    if (!chatOpen) toggleChat();
+    switchChatMode('nexus');
+  }
+
+  function toggleChat() {
+    chatOpen = !chatOpen;
+    document.getElementById('chatDrawer').classList.toggle('open', chatOpen);
+    document.getElementById('chatFab').classList.remove('has-msg');
+    document.getElementById('chatNotif').style.display = 'none';
+    if (chatOpen) setTimeout(() => document.getElementById('chatInput').focus(), 350);
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+  }
+
+  function handleChatKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+  }
+
+  function sendSuggestion(el) {
+    document.getElementById('chatInput').value = el.textContent.trim();
+    document.getElementById('chatSuggestions').style.display = 'none';
+    sendChat();
+  }
+
+  function now() {
+    return new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  function renderMarkdown(text) {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/^- (.+)$/gm, '<li>$1</li>')
+      .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+      .replace(/\n{2,}/g, '</p><p>')
+      .replace(/\n/g, '<br>');
+  }
+
+  function addBotMsg(text) {
+    const msgs = document.getElementById('chatMessages');
+    const div  = document.createElement('div');
+    div.className = 'msg bot';
+    div.innerHTML = `
+      <div class="msg-avatar">${CHAT_CONFIG[chatMode].avatar}</div>
+      <div>
+        <div class="msg-bubble">${renderMarkdown(text)}</div>
+        <span class="msg-time">${now()}</span>
+      </div>
+    `;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    if (!chatOpen) {
+      document.getElementById('chatFab').classList.add('has-msg');
+      document.getElementById('chatNotif').style.display = 'block';
+    }
+    return div;
+  }
+
+  function addBotMsgRaw(text) { return addBotMsg(text); }
+
+  function addUserMsg(text) {
+    const msgs = document.getElementById('chatMessages');
+    const div  = document.createElement('div');
+    div.className = 'msg user';
+    div.innerHTML = `
+      <div class="msg-avatar">👤</div>
+      <div>
+        <div class="msg-bubble">${text.replace(/</g,'&lt;')}</div>
+        <span class="msg-time">${now()}</span>
+      </div>
+    `;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function showTyping() {
+    const msgs = document.getElementById('chatMessages');
+    const div  = document.createElement('div');
+    div.className = 'msg bot';
+    div.id = 'typingBubble';
+    div.innerHTML = `
+      <div class="msg-avatar">🤖</div>
+      <div class="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    `;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function removeTyping() {
+    const el = document.getElementById('typingBubble');
+    if (el) el.remove();
+  }
+
+  async function sendChat() {
+    if (chatBusy) return;
+    const input = document.getElementById('chatInput');
+    const msg   = input.value.trim();
+    if (!msg) return;
+
+    chatBusy = true;
+    input.value = '';
+    input.style.height = 'auto';
+    document.getElementById('chatSendBtn').disabled = true;
+    document.getElementById('chatSuggestions').style.display = 'none';
+
+    addUserMsg(msg);
+    const history = chatMode === 'sales' ? salesHistory : nexusChatHistory;
+    history.push({ role: 'user', text: msg });
+    if (history.length > 20) history.splice(0, history.length - 20);
+
+    showTyping();
+
+    try {
+      const endpoint = CHAT_CONFIG[chatMode].endpoint;
+      const res = await fetch(`${LOCAL}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg, history: history.slice(0, -1) })
+      });
+      removeTyping();
+
+      if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error || `HTTP ${res.status}`); }
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+
+      addBotMsg(data.reply);
+      history.push({ role: 'model', text: data.reply });
+      if (history.length > 20) history.splice(0, history.length - 20);
+    } catch (e) {
+      removeTyping();
+      addBotMsg(`❌ Error: ${e.message}. Make sure server.js is running.`);
+    } finally {
+      chatBusy = false;
+      document.getElementById('chatSendBtn').disabled = false;
+      input.focus();
+    }
+  }
+  /* ═══════════════════════════════════════════════
+     STATE
+  ═══════════════════════════════════════════════ */
+  const LOCAL = '';
+  let allMechanics = [];
+  let tierChart, cityChart, forecastChart;
+  let pointsHistChart, photosChart, joinChart;
+  let nxStatusChart, nxRulChart, nxFailChart, nxLocChart, nxDealerCsiChart, nxDealerRespChart;
+  let nxTempVibChart, nxSensorLocChart, nxLubChart, nxDealerSegChart, nxTechCsiChart, nxDealerRadarChart;
+  let currentTab = 'dashboard';
+
+  /* ═══════════════════════════════════════════════
+     TAB SWITCHING
+  ═══════════════════════════════════════════════ */
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pane-' + name).classList.add('active');
+    currentTab = name;
+    if ((name === 'nexus' || name === 'nexusai') && !nexusLoaded) loadNexus();
+  }
+
+  /* ═══════════════════════════════════════════════
+     NBC NEXUS — IoT + Dealer Intelligence
+  ═══════════════════════════════════════════════ */
+  let nexusLoaded = false;
+  let nexusBearings = [], nexusDealers = [];
+
+  async function loadNexus() {
+    const btn = document.getElementById('nexusRefreshBtn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '↻ Loading…'; }
+    try {
+      const res = await fetch(`${LOCAL}/nexus-data`);
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Unknown error');
+      nexusBearings = data.bearings;
+      nexusDealers  = data.dealers;
+      renderNexusStats();
+      renderBearingTable();
+      renderDealerTable();
+      nexusLoaded = true;
+    } catch(e) {
+      alert('Nexus load failed: ' + e.message);
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = '↻ Refresh Data'; }
+    }
+  }
+
+  function renderNexusStats() {
+    const healthy   = nexusBearings.filter(b => b.Status === 'Healthy').length;
+    const degrading = nexusBearings.filter(b => b.Status === 'Degrading').length;
+    const critical  = nexusBearings.filter(b => b.Status === 'Critical').length;
+    const avgRUL    = nexusBearings.length
+      ? Math.round(nexusBearings.reduce((s,b) => s + Number(b.RUL_Days||0), 0) / nexusBearings.length)
+      : 0;
+
+    document.getElementById('nexus-bearing-stats').innerHTML = `
+      <div class="stat-card" style="--a:#63b3ed"><div class="sl">Total Units</div><div class="sv">${nexusBearings.length}</div><div class="sd">Bearing assets</div><div class="si">⚙️</div></div>
+      <div class="stat-card" style="--a:#fc8181"><div class="sl">Critical</div><div class="sv">${critical}</div><div class="sd">Immediate replacement</div><div class="si">🔴</div></div>
+      <div class="stat-card" style="--a:#f6ad55"><div class="sl">Degrading</div><div class="sv">${degrading}</div><div class="sd">Monitor closely</div><div class="si">⚠️</div></div>
+      <div class="stat-card" style="--a:#68d391"><div class="sl">Avg RUL</div><div class="sv">${avgRUL}d</div><div class="sd">Remaining useful life</div><div class="si">📅</div></div>
+    `;
+
+    // Bearing Status doughnut
+    if(nxStatusChart)nxStatusChart.destroy();
+    nxStatusChart=new Chart(document.getElementById('nxStatusChart'),{
+      type:'doughnut',
+      data:{labels:['Healthy','Degrading','Critical'],datasets:[{data:[healthy,degrading,critical],backgroundColor:['#68d391','#f6ad55','#fc8181'],borderWidth:0}]},
+      options:{plugins:{legend:{labels:{color:'#a0aec0'}}},cutout:'62%'}
+    });
+
+    // RUL distribution bar
+    const rulBkt=[0,0,0,0,0,0];
+    nexusBearings.forEach(b=>{
+      const r=Number(b.RUL_Days);
+      if(r===0)rulBkt[0]++;
+      else if(r<=30)rulBkt[1]++;
+      else if(r<=90)rulBkt[2]++;
+      else if(r<=180)rulBkt[3]++;
+      else if(r<=365)rulBkt[4]++;
+      else rulBkt[5]++;
+    });
+    if(nxRulChart)nxRulChart.destroy();
+    nxRulChart=new Chart(document.getElementById('nxRulChart'),{
+      type:'bar',
+      data:{labels:['0d (End)','1–30d','31–90d','91–180d','181–365d','365d+'],datasets:[{label:'Units',data:rulBkt,backgroundColor:['#fc8181','#fc8181','#f6ad55','#4299e1','#68d391','#68d391'],borderRadius:6}]},
+      options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#a0aec0',font:{size:9}},grid:{color:'#2d3748'}},y:{ticks:{color:'#a0aec0',stepSize:1},grid:{color:'#2d3748'}}}}
+    });
+
+    // Failure mode doughnut
+    const failMap={};
+    nexusBearings.forEach(b=>{const f=b.Failure_Mode||'None';failMap[f]=(failMap[f]||0)+1;});
+    const failEntries=Object.entries(failMap).sort((a,b)=>b[1]-a[1]);
+    if(nxFailChart)nxFailChart.destroy();
+    nxFailChart=new Chart(document.getElementById('nxFailChart'),{
+      type:'doughnut',
+      data:{labels:failEntries.map(e=>e[0]),datasets:[{data:failEntries.map(e=>e[1]),backgroundColor:['#4a5568','#fc8181','#f6ad55','#e9984b','#cc4d4d','#b83280','#805ad5'],borderWidth:0}]},
+      options:{plugins:{legend:{labels:{color:'#a0aec0',font:{size:10}}}},cutout:'55%'}
+    });
+
+    // Units by Location stacked bar
+    const locMap={};
+    nexusBearings.forEach(b=>{if(!locMap[b.Location])locMap[b.Location]={Healthy:0,Degrading:0,Critical:0};locMap[b.Location][b.Status]++;});
+    const locNames=Object.keys(locMap);
+    if(nxLocChart)nxLocChart.destroy();
+    nxLocChart=new Chart(document.getElementById('nxLocChart'),{
+      type:'bar',
+      data:{labels:locNames,datasets:[
+        {label:'Healthy',data:locNames.map(l=>locMap[l].Healthy),backgroundColor:'#68d391'},
+        {label:'Degrading',data:locNames.map(l=>locMap[l].Degrading),backgroundColor:'#f6ad55'},
+        {label:'Critical',data:locNames.map(l=>locMap[l].Critical),backgroundColor:'#fc8181'},
+      ]},
+      options:{plugins:{legend:{labels:{color:'#a0aec0'}}},scales:{x:{stacked:true,ticks:{color:'#a0aec0',font:{size:9}},grid:{color:'#2d3748'}},y:{stacked:true,ticks:{color:'#a0aec0',stepSize:1},grid:{color:'#2d3748'}}}}
+    });
+
+    // Temp vs Vibration scatter coloured by status
+    const tvData={Healthy:[],Degrading:[],Critical:[]};
+    nexusBearings.forEach(b=>{
+      const s=b.Status||'Healthy';
+      if(tvData[s])tvData[s].push({x:Number(b.Temperature_C),y:Number(b.Vibration_mm_s),label:b.Unit_ID});
+    });
+    if(nxTempVibChart)nxTempVibChart.destroy();
+    nxTempVibChart=new Chart(document.getElementById('nxTempVibChart'),{
+      type:'scatter',
+      data:{datasets:[
+        {label:'Healthy',data:tvData.Healthy,backgroundColor:'rgba(104,211,145,0.7)',pointRadius:5},
+        {label:'Degrading',data:tvData.Degrading,backgroundColor:'rgba(246,173,85,0.8)',pointRadius:5},
+        {label:'Critical',data:tvData.Critical,backgroundColor:'rgba(252,129,129,0.9)',pointRadius:6},
+      ]},
+      options:{plugins:{legend:{labels:{color:'#a0aec0'}}},scales:{
+        x:{title:{display:true,text:'Temperature (°C)',color:'#718096'},ticks:{color:'#a0aec0'},grid:{color:'#2d3748'}},
+        y:{title:{display:true,text:'Vibration (mm/s)',color:'#718096'},ticks:{color:'#a0aec0'},grid:{color:'#2d3748'}}
+      }}
+    });
+
+    // Avg sensor readings by location (normalised 0-100)
+    const locSensor={};
+    const locCount={};
+    nexusBearings.forEach(b=>{
+      const loc=b.Location;
+      if(!locSensor[loc]){locSensor[loc]={temp:0,vib:0,rpm:0};locCount[loc]=0;}
+      locSensor[loc].temp+=Number(b.Temperature_C);locSensor[loc].vib+=Number(b.Vibration_mm_s)*10;locSensor[loc].rpm+=Number(b.RPM)/20;
+      locCount[loc]++;
+    });
+    const sLocNames=Object.keys(locSensor);
+    const sLocNorm=(key,scale)=>sLocNames.map(l=>+(locSensor[l][key]/locCount[l]*scale).toFixed(1));
+    const avgTemp=sLocNames.map(l=>+(locSensor[l].temp/locCount[l]).toFixed(1));
+    const avgVib=sLocNames.map(l=>+(locSensor[l].vib/locCount[l]).toFixed(2));
+    const avgRpm=sLocNames.map(l=>+(locSensor[l].rpm/locCount[l]).toFixed(0));
+    // normalise each to 0-100 for radar-like comparison
+    const norm=(arr)=>{const mx=Math.max(...arr)||1;return arr.map(v=>+((v/mx)*100).toFixed(1));}
+    if(nxSensorLocChart)nxSensorLocChart.destroy();
+    nxSensorLocChart=new Chart(document.getElementById('nxSensorLocChart'),{
+      type:'bar',
+      data:{labels:sLocNames,datasets:[
+        {label:'Temp (normalised)',data:norm(avgTemp),backgroundColor:'#fc8181',borderRadius:4},
+        {label:'Vibration (normalised)',data:norm(avgVib.map((v,i)=>locSensor[sLocNames[i]].vib/locCount[sLocNames[i]])),backgroundColor:'#f6ad55',borderRadius:4},
+        {label:'RPM (normalised)',data:norm(avgRpm.map((v,i)=>locSensor[sLocNames[i]].rpm/locCount[sLocNames[i]])),backgroundColor:'#4299e1',borderRadius:4},
+      ]},
+      options:{plugins:{legend:{labels:{color:'#a0aec0',font:{size:10}}},tooltip:{callbacks:{label:(c)=>`${c.dataset.label}: ${c.raw}`}}},scales:{
+        x:{ticks:{color:'#a0aec0',font:{size:9}},grid:{color:'#2d3748'}},
+        y:{max:100,ticks:{color:'#a0aec0'},grid:{color:'#2d3748'},title:{display:true,text:'Normalised (0–100)',color:'#718096'}}
+      }}
+    });
+
+    // Lubrication level distribution by status
+    const lubBkts=['0–20%','21–40%','41–60%','61–80%','81–100%'];
+    const lubData={Healthy:[0,0,0,0,0],Degrading:[0,0,0,0,0],Critical:[0,0,0,0,0]};
+    nexusBearings.forEach(b=>{
+      const s=b.Status||'Healthy';const v=Number(b.Lubrication_Level_Pct||0);
+      const idx=v<=20?0:v<=40?1:v<=60?2:v<=80?3:4;
+      if(lubData[s])lubData[s][idx]++;
+    });
+    if(nxLubChart)nxLubChart.destroy();
+    nxLubChart=new Chart(document.getElementById('nxLubChart'),{
+      type:'bar',
+      data:{labels:lubBkts,datasets:[
+        {label:'Healthy',data:lubData.Healthy,backgroundColor:'rgba(104,211,145,0.8)',borderRadius:4},
+        {label:'Degrading',data:lubData.Degrading,backgroundColor:'rgba(246,173,85,0.8)',borderRadius:4},
+        {label:'Critical',data:lubData.Critical,backgroundColor:'rgba(252,129,129,0.9)',borderRadius:4},
+      ]},
+      options:{plugins:{legend:{labels:{color:'#a0aec0'}}},scales:{
+        x:{ticks:{color:'#a0aec0'},grid:{color:'#2d3748'}},
+        y:{ticks:{color:'#a0aec0',stepSize:1},grid:{color:'#2d3748'},title:{display:true,text:'Units',color:'#718096'}}
+      }}
+    });
+
+    const premium  = nexusDealers.filter(d => d._segment === 'Premium').length;
+    const atRisk   = nexusDealers.filter(d => d._segment === 'At-Risk').length;
+    const standard = nexusDealers.length - premium - atRisk;
+    document.getElementById('nexus-dealer-stats').innerHTML = `
+      <div class="stat-card" style="--a:#63b3ed"><div class="sl">Total Dealers</div><div class="sv">${nexusDealers.length}</div><div class="sd">Network partners</div><div class="si">🏪</div></div>
+      <div class="stat-card" style="--a:#68d391"><div class="sl">Premium</div><div class="sv">${premium}</div><div class="sd">Top performers</div><div class="si">🥇</div></div>
+      <div class="stat-card" style="--a:#4299e1"><div class="sl">Standard</div><div class="sv">${standard}</div><div class="sd">Steady partners</div><div class="si">🏅</div></div>
+      <div class="stat-card" style="--a:#fc8181"><div class="sl">At-Risk</div><div class="sv">${atRisk}</div><div class="sd">Need attention</div><div class="si">⚠️</div></div>
+    `;
+
+    // Dealer CSI horizontal bar
+    const dealerNames=nexusDealers.map(d=>d.Name||d.Dealer_ID);
+    const csiScores=nexusDealers.map(d=>Number(d.Customer_Satisfaction_Index||0));
+    const csiColors=csiScores.map(v=>v>=80?'#68d391':v>=60?'#f6ad55':'#fc8181');
+    if(nxDealerCsiChart)nxDealerCsiChart.destroy();
+    nxDealerCsiChart=new Chart(document.getElementById('nxDealerCsiChart'),{
+      type:'bar',
+      data:{labels:dealerNames,datasets:[{label:'CSI Score',data:csiScores,backgroundColor:csiColors,borderRadius:4}]},
+      options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{min:0,max:100,ticks:{color:'#a0aec0'},grid:{color:'#2d3748'}},y:{ticks:{color:'#a0aec0',font:{size:9}},grid:{color:'#2d3748'}}}}
+    });
+
+    // Dealer Responsiveness vs Turnaround scatter
+    if(nxDealerRespChart)nxDealerRespChart.destroy();
+    nxDealerRespChart=new Chart(document.getElementById('nxDealerRespChart'),{
+      type:'scatter',
+      data:{datasets:[{label:'Dealers',data:nexusDealers.map(d=>({x:Number(d.Service_Responsiveness_Score||0),y:Number(d.Turnaround_Time_Hrs||0)})),backgroundColor:'#4299e1',pointRadius:7,pointHoverRadius:10}]},
+      options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:(ctx)=>`${nexusDealers[ctx.dataIndex]?.Name}: Resp ${ctx.raw.x}, T/A ${ctx.raw.y}h`}}},scales:{x:{title:{display:true,text:'Responsiveness (0–5)',color:'#718096'},ticks:{color:'#a0aec0'},grid:{color:'#2d3748'}},y:{title:{display:true,text:'Turnaround Hrs',color:'#718096'},ticks:{color:'#a0aec0'},grid:{color:'#2d3748'}}}}
+    });
+
+    // Dealer Segment doughnut
+    if(nxDealerSegChart)nxDealerSegChart.destroy();
+    nxDealerSegChart=new Chart(document.getElementById('nxDealerSegChart'),{
+      type:'doughnut',
+      data:{labels:['Premium','Standard','At-Risk'],datasets:[{data:[premium,standard,atRisk],backgroundColor:['#68d391','#4299e1','#fc8181'],borderWidth:0}]},
+      options:{plugins:{legend:{labels:{color:'#a0aec0',font:{size:12}}}},cutout:'60%'}
+    });
+
+    // Tech Score vs CSI bubble (radius = inventory level)
+    const segColors={Premium:'rgba(104,211,145,0.75)',Standard:'rgba(66,153,225,0.75)','At-Risk':'rgba(252,129,129,0.85)'};
+    const bubDatasets={};
+    nexusDealers.forEach(d=>{
+      const seg=d._segment||'Standard';
+      if(!bubDatasets[seg])bubDatasets[seg]={label:seg,data:[],backgroundColor:segColors[seg]||'#4299e1'};
+      bubDatasets[seg].data.push({
+        x:Number(d.Technical_Capability_Score||0),
+        y:Number(d.Customer_Satisfaction_Index||0),
+        r:Math.max(4,Number(d.Inventory_Level||0)/25),
+        name:d.Name
+      });
+    });
+    if(nxTechCsiChart)nxTechCsiChart.destroy();
+    nxTechCsiChart=new Chart(document.getElementById('nxTechCsiChart'),{
+      type:'bubble',
+      data:{datasets:Object.values(bubDatasets)},
+      options:{plugins:{legend:{labels:{color:'#a0aec0'}},tooltip:{callbacks:{label:(c)=>`${c.raw.name}: Tech ${c.raw.x}, CSI ${c.raw.y}, Inv ${Math.round(c.raw.r*25)}`}}},scales:{
+        x:{title:{display:true,text:'Technical Capability Score',color:'#718096'},ticks:{color:'#a0aec0'},grid:{color:'#2d3748'}},
+        y:{title:{display:true,text:'Customer Satisfaction Index',color:'#718096'},ticks:{color:'#a0aec0'},grid:{color:'#2d3748'}}
+      }}
+    });
+
+    // Dealer Radar — avg KPIs by segment
+    const segGroups={Premium:[],Standard:[],'At-Risk':[]};
+    nexusDealers.forEach(d=>{const seg=d._segment||'Standard';if(segGroups[seg])segGroups[seg].push(d);});
+    const segAvg=(seg,key)=>segGroups[seg].length?+(segGroups[seg].reduce((s,d)=>s+Number(d[key]||0),0)/segGroups[seg].length).toFixed(1):0;
+    const radarLabels=['Inventory (/50)','Responsiveness (/5×20)','Turnaround (inv)','Tech Score','CSI'];
+    const segDataFn=(seg)=>[
+      +(segAvg(seg,'Inventory_Level')/5).toFixed(1),
+      +(segAvg(seg,'Service_Responsiveness_Score')*20).toFixed(1),
+      +(Math.max(0,100-segAvg(seg,'Turnaround_Time_Hrs'))).toFixed(1),
+      +(segAvg(seg,'Technical_Capability_Score')).toFixed(1),
+      +(segAvg(seg,'Customer_Satisfaction_Index')).toFixed(1)
+    ];
+    if(nxDealerRadarChart)nxDealerRadarChart.destroy();
+    nxDealerRadarChart=new Chart(document.getElementById('nxDealerRadarChart'),{
+      type:'radar',
+      data:{labels:radarLabels,datasets:[
+        {label:'Premium',data:segDataFn('Premium'),borderColor:'#68d391',backgroundColor:'rgba(104,211,145,0.15)',pointBackgroundColor:'#68d391'},
+        {label:'Standard',data:segDataFn('Standard'),borderColor:'#4299e1',backgroundColor:'rgba(66,153,225,0.12)',pointBackgroundColor:'#4299e1'},
+        {label:'At-Risk',data:segDataFn('At-Risk'),borderColor:'#fc8181',backgroundColor:'rgba(252,129,129,0.12)',pointBackgroundColor:'#fc8181'},
+      ]},
+      options:{plugins:{legend:{labels:{color:'#a0aec0'}}},scales:{r:{angleLines:{color:'#2d3748'},grid:{color:'#2d3748'},pointLabels:{color:'#a0aec0',font:{size:10}},ticks:{color:'#4a5568',backdropColor:'transparent'}}}}
+    });
+  }
+
+  function renderBearingTable() {
+    const filter = (document.getElementById('bearStatusFilter') || {}).value || '';
+    const rows = filter ? nexusBearings.filter(b => b.Status === filter) : nexusBearings;
+    const countEl = document.getElementById('nexus-bear-count');
+    if (countEl) countEl.textContent = `${rows.length} units`;
+    document.getElementById('nexus-bear-tbody').innerHTML = rows.map(b => {
+      const rul = Number(b.RUL_Days);
+      const rulColor = rul === 0 ? '#fc8181' : rul < 30 ? '#f6ad55' : '#68d391';
+      return `<tr>
+        <td style="font-family:monospace;color:#76e4f7">${b.Unit_ID}</td>
+        <td>${b.Location}</td>
+        <td><span class="status-badge badge-${b.Status}">${b.Status}</span></td>
+        <td style="color:${rulColor};font-weight:700">${rul}d</td>
+        <td>${b.Temperature_C}°</td>
+        <td>${b.Vibration_mm_s}</td>
+        <td>${b.RPM}</td>
+        <td>${b.Load_Factor}</td>
+        <td>${b.Lubrication_Level_Pct}%</td>
+        <td style="color:${b.Failure_Mode==='None'?'#4a5568':'#fc8181'}">${b.Failure_Mode}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderDealerTable() {
+    const countEl = document.getElementById('nexus-dealer-count');
+    if (countEl) countEl.textContent = `${nexusDealers.length} dealers`;
+    document.getElementById('nexus-dealer-tbody').innerHTML = nexusDealers.map(d => {
+      const seg = d._segment || 'Standard';
+      return `<tr>
+        <td style="font-family:monospace;color:#76e4f7">${d.Dealer_ID}</td>
+        <td>${d.Name}</td>
+        <td>${d.Location}</td>
+        <td><span class="status-badge badge-${seg}">${seg}</span></td>
+        <td>${d.Inventory_Level}</td>
+        <td>${d.Service_Responsiveness_Score}</td>
+        <td>${d.Turnaround_Time_Hrs}h</td>
+        <td>${d.Technical_Capability_Score}</td>
+        <td>${d.Customer_Satisfaction_Index}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  async function predictRUL() {
+    const btn = document.getElementById('rulBtn');
+    const resultEl = document.getElementById('rul-result');
+    btn.disabled = true; btn.innerHTML = '↻ Predicting…';
+    resultEl.style.display = 'none';
+    try {
+      const body = {
+        Operating_Hours:      Number(document.getElementById('rul_hours').value),
+        RPM:                  Number(document.getElementById('rul_rpm').value),
+        Temperature_C:        Number(document.getElementById('rul_temp').value),
+        Vibration_mm_s:       Number(document.getElementById('rul_vib').value),
+        Lubrication_Level_Pct: Number(document.getElementById('rul_lub').value),
+        Load_Factor:          Number(document.getElementById('rul_load').value),
+      };
+      const res = await fetch('/api/predict/rul', {
+        method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+      });
+      if (!res.ok) throw new Error(`API error ${res.status}`);
+      const data = await res.json();
+      const days = Math.round(data.predicted_rul_days);
+      const color = days < 30 ? '#fc8181' : days < 90 ? '#f6ad55' : '#68d391';
+      resultEl.className = 'predict-result ok';
+      resultEl.style.display = 'block';
+      resultEl.innerHTML = `Predicted RUL: <strong style="color:${color}">${days} days</strong>
+        <div class="rul-bar"><div class="rul-fill" style="width:${Math.min(days/500*100,100)}%;background:${color}"></div></div>`;
+    } catch(e) {
+      resultEl.className = 'predict-result err';
+      resultEl.style.display = 'block';
+      resultEl.textContent = 'Error: ' + e.message;
+    } finally {
+      btn.disabled = false; btn.innerHTML = '⚡ Predict RUL';
+    }
+  }
+
+  async function predictDealer() {
+    const btn = document.getElementById('dealerBtn');
+    const resultEl = document.getElementById('dealer-result');
+    btn.disabled = true; btn.innerHTML = '↻ Classifying…';
+    resultEl.style.display = 'none';
+    try {
+      const body = {
+        Inventory_Level:             Number(document.getElementById('dl_inv').value),
+        Service_Responsiveness_Score: Number(document.getElementById('dl_resp').value),
+        Turnaround_Time_Hrs:         Number(document.getElementById('dl_turn').value),
+        Customer_Satisfaction_Index: Number(document.getElementById('dl_csi').value),
+      };
+      const res = await fetch('/api/predict/dealer-segment', {
+        method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+      });
+      if (!res.ok) throw new Error(`API error ${res.status}`);
+      const data = await res.json();
+      const seg = data.segment_label || 'Standard';
+      resultEl.className = 'predict-result ok';
+      resultEl.style.display = 'block';
+      resultEl.innerHTML = `Dealer Segment: <span class="status-badge badge-${seg}">${seg}</span> <small style="color:#718096">(cluster ${data.cluster_id})</small>`;
+    } catch(e) {
+      resultEl.className = 'predict-result err';
+      resultEl.style.display = 'block';
+      resultEl.textContent = 'Error: ' + e.message;
+    } finally {
+      btn.disabled = false; btn.innerHTML = '⚡ Classify Dealer';
+    }
+  }
+
+  /* ═══════════════════════════════════════════════
+     NEXUS AI           
+  ═══════════════════════════════════════════════ */
+  let nxChatHistory = [];
+
+  async function runNexusAnalysis() {
+    ['nexusAnalyzeBtn','nexusAnalyzeBtn2'].forEach(id => { const b = document.getElementById(id); if(b){b.disabled=true;b.innerHTML='<span class="spin">↻</span> Analyzing…';} });
+    document.getElementById('nxi-loading').style.display = 'block';
+    document.getElementById('nxi-results').style.display = 'none';
+    try {
+      if (!nexusLoaded) await loadNexus();
+      const res = await fetch(`${LOCAL}/nexus-analyze`, { method: 'POST' });
+      if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || `HTTP ${res.status}`); }
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+      renderNexusAI(data.analysis);
+    } catch (e) { alert('Nexus AI failed: ' + e.message); }
+    finally {
+      ['nexusAnalyzeBtn','nexusAnalyzeBtn2'].forEach(id => { const b = document.getElementById(id); if(b){b.disabled=false;b.innerHTML='✨ AI Analyze';} });
+      document.getElementById('nxi-loading').style.display = 'none';
+    }
+  }
+
+  function renderNexusAI(a) {
+    const score = Number(a.fleet_health_score) || 0;
+    const scoreColor = score < 40 ? '#fc8181' : score < 70 ? '#f6ad55' : '#68d391';
+    const ring = document.getElementById('nxi-score-ring');
+    ring.style.borderColor = scoreColor; ring.style.color = scoreColor;
+    document.getElementById('nxi-score-val').textContent = score;
+    document.getElementById('nxi-exec').textContent = a.exec_summary || '';
+    const th = document.getElementById('nxi-thinking');
+    if (a.thinking) { th.textContent = '🧠 ' + a.thinking; th.style.display = 'block'; }
+    else { th.style.display = 'none'; }
+    const mkCard = (i) => `<div class="nxi-card ${i.priority||'Low'}">
+      <div class="nxi-card-hdr"><span class="nxi-card-icon">${i.icon||'💡'}</span>
+        <span class="nxi-card-title">${i.title}</span>
+        <span class="nxi-prio ${i.priority||'Low'}">${i.priority||'—'}</span></div>
+      <div class="nxi-detail">${i.detail}</div>
+      <div class="nxi-action">→ ${i.action}</div>
+    </div>`;
+    const bi = a.bearing_insights || [];
+    document.getElementById('nxi-b-insights').textContent = bi.length + ' insights';
+    document.getElementById('nxi-insights').innerHTML = bi.map(mkCard).join('');
+    const ms = a.maintenance_schedule || [];
+    document.getElementById('nxi-b-maint').textContent = ms.length + ' units';
+    document.getElementById('nxi-maint').innerHTML = ms.map(m => {
+      const urg = m.urgency || 'Planned';
+      return `<div class="maint-card ${urg}">
+        <div class="maint-unit">${m.unit_id}</div>
+        <div class="maint-loc">${m.location}</div>
+        <div class="maint-rul">${m.rul_days}d</div>
+        <div class="maint-urg">${urg}</div>
+        <div class="maint-rec">${m.recommendation}</div>
+      </div>`;
+    }).join('');
+    document.getElementById('nxi-dealer').innerHTML = (a.dealer_insights || []).map(mkCard).join('');
+    document.getElementById('nxi-loc').innerHTML = (a.location_risks || []).map(l =>
+      `<div class="loc-card ${l.risk_level||'Low'}">
+        <div style="font-size:0.85rem;font-weight:700;color:#e2e8f0">${l.location}</div>
+        <div style="font-size:0.7rem;color:#718096;margin:2px 0">${l.units} units · ${l.critical_count} critical</div>
+        <div style="font-size:0.76rem;font-weight:700;color:var(--lc,#4299e1);margin:4px 0">${l.risk_level||'—'} Risk</div>
+        <div style="font-size:0.74rem;color:#90a0b4;line-height:1.4">${l.recommendation}</div>
+      </div>`
+    ).join('');
+    document.getElementById('nxi-results').style.display = 'block';
+  }
+
+  function nxSendSugg(btn) {
+    const q = btn.textContent.replace(/^[\s\S]{2}/, '').trim();
+    openNexusChat();
+    setTimeout(() => {
+      document.getElementById('chatInput').value = q;
+      sendChat();
+    }, 350);
+  }
+
+  function nxChatKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); openNexusChat(); }
+  }
+
+  async function nxSendChat() { openNexusChat(); }
+
+  /* ═══════════════════════════════════════════════
+     DATA LOADING
+  ═══════════════════════════════════════════════ */
+  async function loadData(silent = false) {
+    const btn = document.getElementById('refreshBtn');
+    const dot = document.getElementById('statusDot');
+    const txt = document.getElementById('statusText');
+
+    if (!silent) {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spin">↻</span> Loading…';
+    }
+    dot.className = 'dot active';
+    txt.textContent = 'Reading CSV…';
+
+    try {
+      const res  = await fetch(`${LOCAL}/data`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+
+      allMechanics = data.mechanics;
+      dot.className = 'dot ok';
+      const ts = new Date().toLocaleString('en-IN');
+      txt.textContent = allMechanics.length === 0
+        ? '⚠️ No mechanics in CSV — click Sync WhatsApp to import'
+        : `✓ ${allMechanics.length} mechanics loaded — ${ts}`;
+
+      renderDashboard();
+    } catch (e) {
+      dot.className = 'dot err';
+      txt.textContent = `✗ ${e.message} — Is server.js running? Run: node server.js`;
+    } finally {
+      if (!silent) {
+        btn.disabled = false;
+        btn.innerHTML = '🗓️ Refresh';
+      }
+    }
+  }
+
+  async function syncFromWhatsApp() {
+    const btn = document.getElementById('wappBtn');
+    const dot = document.getElementById('statusDot');
+    const txt = document.getElementById('statusText');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin">↻</span> Syncing…';
+    dot.className = 'dot active';
+    txt.textContent = 'Pulling from WhatsApp / Twilio Sync…';
+
+    try {
+      const res  = await fetch(`${LOCAL}/sync`, { method: 'POST' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+
+      allMechanics = data.mechanics;
+      dot.className = 'dot ok';
+      txt.textContent = `✓ Synced ${allMechanics.length} mechanics from WhatsApp — ${new Date().toLocaleString('en-IN')}`;
+      renderDashboard();
+    } catch (e) {
+      dot.className = 'dot err';
+      txt.textContent = `✗ Sync failed: ${e.message}`;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '📱 Sync WhatsApp';
+    }
+  }
+
+  /* ═══════════════════════════════════════════════
+     DASHBOARD RENDERING
+  ═══════════════════════════════════════════════ */
+  function renderDashboard() {
+    document.getElementById('dash-loading').style.display = 'none';
+    document.getElementById('dash-content').style.display = 'block';
+
+    // Stat cards
+    const totalPts    = allMechanics.reduce((s, m) => s + m.points, 0);
+    const totalPhotos = allMechanics.reduce((s, m) => s + m.images_submitted, 0);
+    const diamonds    = allMechanics.filter(m => m.tier === 'Diamond').length;
+
+    document.getElementById('stat-cards').innerHTML = `
+      <div class="stat-card" style="--a:#4299e1"><div class="sl">Total Mechanics</div><div class="sv">${allMechanics.length}</div><div class="ss">Registered users</div><div class="si">👥</div></div>
+      <div class="stat-card" style="--a:#68d391"><div class="sl">Total Points</div><div class="sv">${totalPts.toLocaleString()}</div><div class="ss">Across all mechanics</div><div class="si">⭐</div></div>
+      <div class="stat-card" style="--a:#f6ad55"><div class="sl">Photos Submitted</div><div class="sv">${totalPhotos.toLocaleString()}</div><div class="ss">Verified camera photos</div><div class="si">📸</div></div>
+      <div class="stat-card" style="--a:#76e4f7"><div class="sl">Diamond Tier</div><div class="sv">${diamonds}</div><div class="ss">💎 Top performers</div><div class="si">💎</div></div>
+    `;
+
+    renderCharts();
+    renderTable();
+  }
+
+  function renderCharts() {
+    const tierCounts = { Bronze:0, Silver:0, Gold:0, Diamond:0 };
+    const cityMap = {};
+    allMechanics.forEach(m => {
+      tierCounts[m.tier] = (tierCounts[m.tier] || 0) + 1;
+      if (m.last_city) cityMap[m.last_city] = (cityMap[m.last_city] || 0) + 1;
+    });
+
+    if (tierChart) tierChart.destroy();
+    tierChart = new Chart(document.getElementById('tierChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['🥉 Bronze','🥈 Silver','🥇 Gold','💎 Diamond'],
+        datasets: [{ data: [tierCounts.Bronze, tierCounts.Silver, tierCounts.Gold, tierCounts.Diamond],
+          backgroundColor: ['#c05621','#718096','#d69e2e','#0bc5ea'], borderWidth: 0 }]
+      },
+      options: { plugins: { legend: { labels: { color:'#a0aec0', font:{size:12} } } }, cutout:'65%' }
+    });
+
+    const topCities = Object.entries(cityMap).sort((a,b) => b[1]-a[1]).slice(0, 7);
+    if (cityChart) cityChart.destroy();
+    cityChart = new Chart(document.getElementById('cityChart'), {
+      type: 'bar',
+      data: {
+        labels: topCities.map(c => c[0]),
+        datasets: [{ label:'Mechanics', data: topCities.map(c => c[1]),
+          backgroundColor:'#4299e1', borderRadius: 6 }]
+      },
+      options: {
+        plugins: { legend: { display:false } },
+        scales: {
+          x: { ticks:{color:'#a0aec0'}, grid:{color:'#2d3748'} },
+          y: { ticks:{color:'#a0aec0',stepSize:1}, grid:{color:'#2d3748'} }
+        }
+      }
+    });
+
+    // Points distribution histogram
+    const ptBuckets=[0,0,0,0,0];
+    const ptLabels=['0–99','100–499','500–999','1,000–2,999','3,000+'];
+    const ptColors=['#fc8181','#f6ad55','#4299e1','#68d391','#0bc5ea'];
+    allMechanics.forEach(m=>{
+      const p=m.points;
+      if(p<100)ptBuckets[0]++;
+      else if(p<500)ptBuckets[1]++;
+      else if(p<1000)ptBuckets[2]++;
+      else if(p<3000)ptBuckets[3]++;
+      else ptBuckets[4]++;
+    });
+    if(pointsHistChart)pointsHistChart.destroy();
+    pointsHistChart=new Chart(document.getElementById('pointsHistChart'),{
+      type:'bar',
+      data:{labels:ptLabels,datasets:[{label:'Mechanics',data:ptBuckets,backgroundColor:ptColors,borderRadius:6}]},
+      options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#a0aec0'},grid:{color:'#2d3748'}},y:{ticks:{color:'#a0aec0',stepSize:1},grid:{color:'#2d3748'}}}}
+    });
+
+    // Top 10 by photo submissions
+    const topPhotos=[...allMechanics].sort((a,b)=>b.images_submitted-a.images_submitted).slice(0,10);
+    if(photosChart)photosChart.destroy();
+    photosChart=new Chart(document.getElementById('photosChart'),{
+      type:'bar',
+      data:{labels:topPhotos.map(m=>m.name.split(' ')[0]),datasets:[{label:'Photos',data:topPhotos.map(m=>m.images_submitted),backgroundColor:'#68d391',borderRadius:4}]},
+      options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#a0aec0'},grid:{color:'#2d3748'}},y:{ticks:{color:'#a0aec0',font:{size:10}},grid:{color:'#2d3748'}}}}
+    });
+
+    // Monthly registrations trend
+    const joinMap={};
+    allMechanics.forEach(m=>{
+      if(!m.joined_at)return;
+      const mo=m.joined_at.slice(0,7);
+      joinMap[mo]=(joinMap[mo]||0)+1;
+    });
+    const joinLabels=Object.keys(joinMap).sort();
+    if(joinChart)joinChart.destroy();
+    joinChart=new Chart(document.getElementById('joinChart'),{
+      type:'line',
+      data:{labels:joinLabels,datasets:[{label:'New Mechanics',data:joinLabels.map(k=>joinMap[k]),borderColor:'#f6ad55',backgroundColor:'rgba(246,173,85,0.15)',fill:true,tension:0.4,pointRadius:3}]},
+      options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#a0aec0',maxRotation:45,font:{size:9}},grid:{color:'#2d3748'}},y:{ticks:{color:'#a0aec0',stepSize:1},grid:{color:'#2d3748'}}}}
+    });
+
+    // City × Tier table
+    const tiers=['Bronze','Silver','Gold','Diamond'];
+    const topCityList=Object.entries(cityMap).sort((a,b)=>b[1]-a[1]).slice(0,10).map(c=>c[0]);
+    const cityTierData={};
+    topCityList.forEach(c=>{cityTierData[c]={Bronze:0,Silver:0,Gold:0,Diamond:0};});
+    allMechanics.forEach(m=>{if(m.last_city&&cityTierData[m.last_city])cityTierData[m.last_city][m.tier]++;});
+    const tbody=document.getElementById('city-tier-tbody');
+    if(tbody)tbody.innerHTML=topCityList.map(c=>{
+      const r=cityTierData[c];
+      const tot=r.Bronze+r.Silver+r.Gold+r.Diamond;
+      return `<tr><td>${c}</td><td style="color:#c05621">${r.Bronze}</td><td style="color:#a0aec0">${r.Silver}</td><td style="color:#d69e2e">${r.Gold}</td><td style="color:#0bc5ea">${r.Diamond}</td><td style="font-weight:700;color:#e2e8f0">${tot}</td></tr>`;
+    }).join('');
+  }
+
+  function renderTable() {
+    const q    = (document.getElementById('search')?.value || '').toLowerCase();
+    const tier = document.getElementById('tierFilter')?.value || '';
+    const maxPts = Math.max(...allMechanics.map(m => m.points), 1);
+
+    const filtered = allMechanics.filter(m =>
+      (!q    || m.name.toLowerCase().includes(q) || m.phone.includes(q)) &&
+      (!tier || m.tier === tier)
+    );
+    document.getElementById('rowCount').textContent = `${filtered.length} of ${allMechanics.length}`;
+
+    document.getElementById('tbody').innerHTML = filtered.length
+      ? filtered.map((m, i) => {
+          const pct  = Math.round((m.points / maxPts) * 100);
+          const date = m.joined_at ? new Date(m.joined_at).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}) : '—';
+          return `<tr>
+            <td style="color:#718096">${i+1}</td>
+            <td style="font-weight:600">${m.name}</td>
+            <td style="color:#718096">+${m.phone}</td>
+            <td><span class="tier-badge tier-${m.tier}">${m.tier}</span></td>
+            <td><div class="bar-wrap"><span style="min-width:40px;font-weight:700">${m.points}</span><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div></div></td>
+            <td>${m.images_submitted}</td>
+            <td>${m.last_city ? m.last_city+(m.last_state?', '+m.last_state:'') : '—'}</td>
+            <td style="color:#718096">${m.last_device||'—'}</td>
+            <td style="color:#718096">${date}</td>
+          </tr>`;
+        }).join('')
+      : '<tr><td colspan="9" style="text-align:center;padding:28px;color:#718096">No results</td></tr>';
+  }
+
+  /* ═══════════════════════════════════════════════
+     AI ANALYSIS
+  ═══════════════════════════════════════════════ */
+  function animateSteps() {
+    const items = document.querySelectorAll('#ai-steps li');
+    let i = 0;
+    return setInterval(() => {
+      if (i > 0 && items[i-1]) items[i-1].className = 'done';
+      if (items[i]) items[i].className = 'active';
+      i++;
+      if (i >= items.length) i = items.length - 1;
+    }, 1400);
+  }
+
+  async function runAnalysis() {
+    const btn = document.getElementById('analyzeBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin">↻</span> Analyzing…';
+
+    document.getElementById('ai-placeholder').style.display = 'none';
+    document.getElementById('ai-results').style.display = 'none';
+    document.getElementById('ai-loading').style.display = 'block';
+
+    // Reset step indicator
+    document.querySelectorAll('#ai-steps li').forEach((li, i) => {
+      li.className = i === 0 ? 'done' : '';
+    });
+    const stepTimer = animateSteps();
+
+    try {
+      const res  = await fetch(`${LOCAL}/analyze`, { method: 'POST' });
+      clearInterval(stepTimer);
+      document.querySelectorAll('#ai-steps li').forEach(li => li.className = 'done');
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+
+      renderAI(data.analysis);
+    } catch (e) {
+      clearInterval(stepTimer);
+      document.getElementById('ai-loading').style.display = 'none';
+      document.getElementById('ai-placeholder').style.display = 'block';
+      document.getElementById('ai-placeholder').innerHTML = `
+        <div class="ico">❌</div>
+        <h2>Analysis failed</h2>
+        <p style="color:#fc8181">${e.message}</p>
+        <p style="margin-top:8px">Make sure server.js is running and your Gemini API key is valid.</p>
+      `;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '✨ Re-Analyze';
+    }
+  }
+
+  function renderAI(a) {
+    document.getElementById('ai-loading').style.display = 'none';
+    document.getElementById('ai-results').style.display = 'block';
+
+    // Thinking summary
+    document.getElementById('ai-thinking').innerHTML = `<p>${a.thinking_summary || ''}</p>`;
+
+    // Insights
+    document.getElementById('insight-count').textContent = `${a.insights.length} insights`;
+    document.getElementById('insights-grid').innerHTML = a.insights.map(ins => `
+      <div class="insight-card ${ins.impact}">
+        <div class="insight-header">
+          <span class="insight-icon">${ins.icon||'💡'}</span>
+          <span class="insight-title">${ins.title}</span>
+          <span class="impact-badge impact-${ins.impact}">${ins.impact}</span>
+        </div>
+        <p class="insight-detail">${ins.detail}</p>
+        <div class="insight-action">${ins.action}</div>
+      </div>
+    `).join('');
+
+    // Forecast chart
+    const topF = a.forecast.slice(0, 8);
+    if (forecastChart) forecastChart.destroy();
+    forecastChart = new Chart(document.getElementById('forecastChart'), {
+      type: 'bar',
+      data: {
+        labels: topF.map(f => f.city),
+        datasets: [
+          { label: 'Current Photos', data: topF.map(f => f.current_photos_total), backgroundColor: '#4299e1', borderRadius: 4 },
+          { label: '+30d Projected', data: topF.map(f => f.projected_photos_30d), backgroundColor: '#68d391', borderRadius: 4 }
+        ]
+      },
+      options: {
+        plugins: { legend: { labels: { color:'#a0aec0', font:{size:11} } } },
+        scales: {
+          x: { ticks:{color:'#a0aec0',font:{size:10}}, grid:{color:'#2d3748'} },
+          y: { ticks:{color:'#a0aec0'}, grid:{color:'#2d3748'} }
+        }
+      }
+    });
+
+    // Forecast table
+    document.getElementById('forecast-tbody').innerHTML = topF.map(f => `
+      <tr>
+        <td style="font-weight:600">${f.city}</td>
+        <td style="color:#718096">${f.state}</td>
+        <td>${f.current_mechanics}</td>
+        <td>${f.current_photos_total}</td>
+        <td style="color:#68d391;font-weight:700">${f.projected_photos_30d}</td>
+        <td style="color:${f.growth_pct>=20?'#68d391':f.growth_pct>=10?'#f6ad55':'#a0aec0'};font-weight:700">+${f.growth_pct}%</td>
+        <td><span class="tier-badge ${f.confidence==='High'?'tier-Gold':f.confidence==='Medium'?'tier-Silver':'tier-Bronze'}">${f.confidence}</span></td>
+      </tr>
+    `).join('');
+
+    // PPC
+    document.getElementById('ppc-count').textContent = `${a.ppc.length} cities`;
+    document.getElementById('ppc-grid').innerHTML = a.ppc.map(p => `
+      <div class="ppc-card">
+        <div class="ppc-header">
+          <div><div class="ppc-city">${p.city}</div><div class="ppc-state">${p.state}</div></div>
+          <span class="platform-badge platform-${p.platform.split(' ')[0]}">${p.platform}</span>
+        </div>
+        <div class="ppc-budget">₹${Number(p.budget_inr).toLocaleString()} <span>/month</span></div>
+        <div class="ppc-row"><label>Target Audience</label><span>${p.target_audience}</span></div>
+        <div class="ppc-row"><label>Best Time</label><span>${p.best_time}</span></div>
+        <div class="ppc-row"><label>Expected Reach</label><span style="color:#68d391;font-weight:700">${Number(p.expected_reach).toLocaleString()}</span></div>
+        <div class="ppc-row"><label>Expected Leads</label><span style="color:#f6ad55;font-weight:700">${Number(p.expected_leads).toLocaleString()}</span></div>
+        <div class="ppc-keywords">${p.keywords.map(k => `<span class="kw">${k}</span>`).join('')}</div>
+      </div>
+    `).join('');
+
+    // Stock
+    document.getElementById('stock-count').textContent = `${a.stock.length} cities`;
+    document.getElementById('stock-grid').innerHTML = a.stock.map(s => `
+      <div class="stock-card stock-pri-${s.priority}">
+        <div class="stock-header">
+          <div><div class="stock-city">${s.city}</div><div class="stock-state">${s.state}</div></div>
+          <span class="pri-${s.priority}">${s.priority}</span>
+        </div>
+        <div class="stock-units">${Number(s.recommended_stock_units).toLocaleString()} <span>units</span></div>
+        <div class="stock-row">👥 ${s.mechanics_count} mechanics &nbsp;|&nbsp; 📸 ${s.photos_submitted} photos</div>
+        <div class="skus">${s.top_skus.map(k => `<span class="sku">${k}</span>`).join('')}</div>
+        <div class="stock-rationale">${s.rationale}</div>
+      </div>
+    `).join('');
+
+    // Retention
+    document.getElementById('retention-grid').innerHTML = a.retention.map(r => `
+      <div class="ret-card">
+        <div class="ret-header">
+          <span class="ret-arrow">↑</span>
+          <div>
+            <div class="ret-tiers"><span class="tier-badge tier-${r.from_tier}">${r.from_tier}</span> → <span class="tier-badge tier-${r.to_tier}">${r.to_tier}</span></div>
+            <div class="ret-count">${r.mechanics_count} mechanics in this transition</div>
+          </div>
+        </div>
+        <div class="ret-pts">${Number(r.avg_pts_needed).toLocaleString()} <span>avg pts needed</span></div>
+        <div class="ret-strategy">${r.strategy}</div>
+        <div class="ret-incentive">${r.incentive}</div>
+        <div class="ret-timeline">⏱️ ${r.timeline}</div>
+      </div>
+    `).join('');
+
+    // Untapped cities
+    document.getElementById('untapped-count').textContent = `${a.untapped_cities.length} opportunities`;
+    document.getElementById('untapped-grid').innerHTML = a.untapped_cities.map(u => `
+      <div class="untapped-card">
+        <div class="untapped-city">📍 ${u.city}</div>
+        <div class="untapped-state">${u.state}</div>
+        <div class="untapped-why">${u.why}</div>
+        <div class="untapped-action">${u.suggested_action}</div>
+      </div>
+    `).join('');
+
+    // Executive summary
+    document.getElementById('exec-summary-text').textContent = a.summary || '';
+  }
+
+  /* ═══════════════════════════════════════════════
+     BOOT
+  ═══════════════════════════════════════════════ */
+  loadData();
+  setInterval(() => loadData(true), 30000);
+</script>
+</body>
+</html>

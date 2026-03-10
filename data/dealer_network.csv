@@ -1,0 +1,22 @@
+Dealer_ID,Name,Location,Inventory_Level,Service_Responsiveness_Score,Turnaround_Time_Hrs,Technical_Capability_Score,Customer_Satisfaction_Index
+DLR-001,Apex Industrial 1,Chennai,35,4.4,8,63.4,89.9
+DLR-002,Apex Industrial 2,Jaipur,244,4.7,33,62.1,96.8
+DLR-003,Apex Industrial 3,Mumbai,147,4.5,18,77.0,76.5
+DLR-004,Apex Industrial 4,Jaipur,404,4.4,23,63.0,88.9
+DLR-005,Apex Industrial 5,Hyderabad,70,3.2,19,68.0,70.4
+DLR-006,Apex Industrial 6,Pune,499,4.4,40,89.0,93.1
+DLR-007,Apex Industrial 7,Hyderabad,131,3.9,43,69.4,75.9
+DLR-008,Apex Industrial 8,Pune,481,3.7,37,62.1,92.4
+DLR-009,Apex Industrial 9,Pune,245,4.0,14,71.3,89.3
+DLR-010,Apex Industrial 10,Chennai,438,3.6,26,73.3,87.1
+DLR-011,Apex Industrial 11,Delhi,51,4.1,42,74.5,76.3
+DLR-012,Apex Industrial 12,Kolkata,343,4.5,42,65.0,75.2
+DLR-013,Apex Industrial 13,Hyderabad,66,3.9,11,72.4,76.7
+DLR-014,Apex Industrial 14,Jamshedpur,237,4.2,15,80.1,77.8
+DLR-015,Apex Industrial 15,Hyderabad,364,4.4,22,95.6,87.2
+DLR-016,Apex Industrial 16,Delhi,217,4.6,20,96.3,82.2
+DLR-017,Apex Industrial 17,Kolkata,79,3.5,28,80.0,97.5
+DLR-018,Apex Industrial 18,Hyderabad,374,3.8,41,71.1,90.3
+DLR-019,Apex Industrial 19,Chennai,77,4.5,44,67.2,99.3
+DLR-020,Apex Industrial 20,Chennai,204,4.4,21,84.2,84.3
+
