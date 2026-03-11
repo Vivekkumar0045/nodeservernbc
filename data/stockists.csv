@@ -1,0 +1,6 @@
+stockist_id,name,owner_name,city,state,phone,email,gstin,joined_at,monthly_target_units,credit_limit_lakh,status,zone
+STK-001,NBC Bearings North Hub,Rajiv Malhotra,Delhi,Delhi,911145678901,north@nbcbearings.in,07AAACN9999A1Z5,2022-01-15T10:00:00.000Z,5000,50,Active,North
+STK-002,NBC Bearings West Hub,Prakash Shah,Mumbai,Maharashtra,912245678902,west@nbcbearings.in,27AAACN9999A1Z3,2022-02-01T09:00:00.000Z,6000,60,Active,West
+STK-003,NBC Bearings South Hub,Venkatesh Rao,Bangalore,Karnataka,918045678903,south@nbcbearings.in,29AAACN9999A1Z1,2022-02-15T11:00:00.000Z,5500,55,Active,South
+STK-004,NBC Bearings East Hub,Subrata Das,Kolkata,West Bengal,913345678904,east@nbcbearings.in,19AAACN9999A1Z7,2022-03-01T08:00:00.000Z,3500,35,Active,East
+STK-005,NBC Bearings Central Hub,Mohan Agrawal,Bhopal,Madhya Pradesh,917545678905,central@nbcbearings.in,23AAACN9999A1Z9,2022-03-15T10:30:00.000Z,4000,40,Active,Central

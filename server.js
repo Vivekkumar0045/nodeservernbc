@@ -434,213 +434,240 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // ── POST /analyze → Gemini AI analysis
+  // ── POST /analyze → Gemini AI full-channel bearing sales intelligence
   if (req.method === 'POST' && url === '/analyze') {
     (async () => {
       try {
         const GEMINI_KEY = process.env.GEMINI_API_KEY;
         if (!GEMINI_KEY) throw new Error('GEMINI_API_KEY not set in .env');
 
-        if (!fs.existsSync(CSV_PATH)) throw new Error('No CSV data found. Run a sync first.');
-        const mechanics = parseCSV(fs.readFileSync(CSV_PATH, 'utf-8'));
+        // ── Load all 4 channel CSVs ────────────────────────────────────────
+        const readCsv = (name) => {
+          const p = path.join(ROOT, 'data', name);
+          return fs.existsSync(p) ? parseCSV(fs.readFileSync(p, 'utf-8')) : [];
+        };
 
-        // ── Compute aggregated stats for prompt ────────────────────────────
+        const mechanics    = fs.existsSync(CSV_PATH) ? parseCSV(fs.readFileSync(CSV_PATH, 'utf-8')) : [];
+        const stockists    = readCsv('stockists.csv');
+        const distributors = readCsv('distributors.csv');
+        const retailers    = readCsv('retailers.csv');
+        const hierarchy    = readCsv('network_hierarchy.csv');
+
+        // ── Mechanic aggregates ───────────────────────────────────────────
         const totalMechanics = mechanics.length;
-        const totalPoints    = mechanics.reduce((s, m) => s + m.points, 0);
-        const totalPhotos    = mechanics.reduce((s, m) => s + m.images_submitted, 0);
+        const totalPhotos    = mechanics.reduce((s, m) => s + (+m.images_submitted || 0), 0);
+        const totalPoints    = mechanics.reduce((s, m) => s + (+m.points || 0), 0);
+        const tierCounts     = { Bronze:0, Silver:0, Gold:0, Diamond:0 };
+        mechanics.forEach(m => { tierCounts[m.tier] = (tierCounts[m.tier]||0) + 1; });
+        const highTierPct = Math.round(((tierCounts.Gold + tierCounts.Diamond) / Math.max(totalMechanics, 1)) * 100);
 
-        const tierCounts = { Bronze: 0, Silver: 0, Gold: 0, Diamond: 0 };
-        mechanics.forEach(m => { tierCounts[m.tier] = (tierCounts[m.tier] || 0) + 1; });
-
-        // City aggregation
+        // City-level mechanic activity (demand signal)
         const cityMap = {};
         mechanics.forEach(m => {
           if (!m.last_city) return;
-          if (!cityMap[m.last_city]) cityMap[m.last_city] = { city: m.last_city, state: m.last_state, count: 0, points: 0, photos: 0 };
+          if (!cityMap[m.last_city]) cityMap[m.last_city] = { city:m.last_city, state:m.last_state, count:0, photos:0, points:0 };
           cityMap[m.last_city].count++;
-          cityMap[m.last_city].points += m.points;
-          cityMap[m.last_city].photos += m.images_submitted;
+          cityMap[m.last_city].photos  += (+m.images_submitted || 0);
+          cityMap[m.last_city].points  += (+m.points || 0);
         });
-        const cityStats = Object.values(cityMap).sort((a, b) => b.count - a.count);
+        const topCities = Object.values(cityMap).sort((a,b)=>b.photos-a.photos).slice(0,10);
 
-        // Mechanics close to tier upgrade
-        const nearUpgrade = mechanics.filter(m => {
-          const thresholds = [500, 1500, 3000];
-          return thresholds.some(t => m.points >= t - 100 && m.points < t);
-        });
-
-        const csvSummary = mechanics.map(m =>
-          `${m.name}|${m.last_city||'Unknown'}|${m.last_state||'Unknown'}|${m.tier}|${m.points}pts|${m.images_submitted}photos`
+        // ── Stockist aggregates ────────────────────────────────────────────
+        const stkTotalTarget = stockists.reduce((s,x)=>s+(+x.monthly_target_units||0),0);
+        const zoneTargets    = {};
+        stockists.forEach(s => { zoneTargets[s.zone] = (zoneTargets[s.zone]||0) + (+s.monthly_target_units||0); });
+        const stkSummary = stockists.map(s =>
+          `${s.name}|${s.city}|${s.zone}Zone|Target:${s.monthly_target_units}units|Credit:${s.credit_limit_lakh}L`
         ).join('\n');
 
-        // ── Chain-of-thought Gemini prompt ─────────────────────────────────
+        // ── Distributor aggregates ─────────────────────────────────────────
+        const dstTotalTarget = distributors.reduce((s,x)=>s+(+x.monthly_target_units||0),0);
+        const dstSummary = distributors.map(d =>
+          `${d.name}|${d.city},${d.state}|Stockist:${d.stockist_id}|Target:${d.monthly_target_units}units|Retailers:${d.total_retailers}`
+        ).join('\n');
+
+        // ── Retailer aggregates ────────────────────────────────────────────
+        const retTotalPurchase = retailers.reduce((s,x)=>s+(+x.monthly_purchase_units||0),0);
+        const retOutstanding   = retailers.reduce((s,x)=>s+(+x.outstanding_amount||0),0);
+        const retTierCounts    = {};
+        retailers.forEach(r => { retTierCounts[r.tier] = (retTierCounts[r.tier]||0)+1; });
+        const retSummary = retailers.map(r =>
+          `${r.shop_name}|${r.city},${r.state}|Dist:${r.distributor_id}|Purchase:${r.monthly_purchase_units}units/mo|Pts:${r.loyalty_points}|Tier:${r.tier}|Outstanding:₹${r.outstanding_amount}`
+        ).join('\n');
+
+        // ── Network hierarchy (mechanic-to-stockist mapping) ───────────────
+        const mechToChain = {};
+        hierarchy.forEach(row => {
+          mechToChain[row.mechanic_phone] = { stk: row.stockist_id, dst: row.distributor_id, ret: row.retailer_id };
+        });
+        const mappedMechanics = mechanics.filter(m => mechToChain[m.phone]).length;
+
+        // ── Zone-level mechanic demand rollup ──────────────────────────────
+        const zoneDemand = {};
+        hierarchy.forEach(row => {
+          const mech = mechanics.find(m => m.phone == row.mechanic_phone);
+          const stk  = stockists.find(s => s.stockist_id === row.stockist_id);
+          if (!stk) return;
+          const zone = stk.zone || 'Unknown';
+          if (!zoneDemand[zone]) zoneDemand[zone] = { photos:0, points:0, mechanics:0 };
+          if (mech) {
+            zoneDemand[zone].photos   += (+mech.images_submitted || 0);
+            zoneDemand[zone].points   += (+mech.points || 0);
+            zoneDemand[zone].mechanics++;
+          }
+        });
+
+        // ── Build prompt ───────────────────────────────────────────────────
         const prompt = `
-You are a world-class sales analytics AI for NBC Bearing, an Indian industrial bearing manufacturer.
-NBC Bearing runs a WhatsApp loyalty bot where mechanics across India:
-- Register and submit camera photos of NBC bearing installations
-- Earn 10 points per verified photo
-- Progress through tiers: Bronze(0-499) → Silver(500-1499) → Gold(1500-2999) → Diamond(3000+)
-- Rewards include discounts, merchandise, and dealer priority access
+You are a world-class B2B sales analytics AI for NBC Bearing, an Indian industrial bearing manufacturer.
+Your goal is to increase NBC's AFTERMARKET BEARING SALES by analyzing all 4 channel layers simultaneously.
 
-═══════════════════════════════════════
-CURRENT MECHANIC DATA SNAPSHOT:
-═══════════════════════════════════════
-Total Mechanics Registered: ${totalMechanics}
-Total Loyalty Points Awarded: ${totalPoints}
-Total Camera Photos Verified: ${totalPhotos}
-Avg Photos per Mechanic: ${(totalPhotos / totalMechanics).toFixed(1)}
-Avg Points per Mechanic: ${(totalPoints / totalMechanics).toFixed(0)}
+═══════════════════════════════════════════════════════════
+NETWORK STRUCTURE (5 stockists → 15 distributors → 45 retailers → 49 mechanics)
+═══════════════════════════════════════════════════════════
 
-TIER BREAKDOWN:
-- 🥉 Bronze: ${tierCounts.Bronze} mechanics
-- 🥈 Silver: ${tierCounts.Silver} mechanics
-- 🥇 Gold:   ${tierCounts.Gold} mechanics
-- 💎 Diamond: ${tierCounts.Diamond} mechanics
+── STOCKISTS (regional hubs, sell to distributors) ──
+${stkSummary}
+Total Monthly Target: ${stkTotalTarget.toLocaleString()} units/mo
+Zone Targets: ${Object.entries(zoneTargets).map(([z,t])=>`${z}:${t}`).join(' | ')}
 
-TOP CITIES BY MECHANIC DENSITY:
-${cityStats.slice(0, 12).map(c => `- ${c.city}, ${c.state}: ${c.count} mechanics, ${c.photos} photos, ${c.points} total pts`).join('\n')}
+── DISTRIBUTORS (buy from stockists, sell to retailers) ──
+${dstSummary}
+Total Distributor Target: ${dstTotalTarget.toLocaleString()} units/mo
 
-MECHANICS CLOSE TO TIER UPGRADE (within 100 pts):
-${nearUpgrade.map(m => `- ${m.name} (${m.tier}, ${m.points}pts, ${m.last_city})`).join('\n') || 'None currently'}
+── RETAILERS (frontline shops, sell to end users & mechanics) ──
+${retSummary}
+Total Retailer Monthly Purchase: ${retTotalPurchase.toLocaleString()} units/mo
+Outstanding Credit: ₹${retOutstanding.toLocaleString()}
+Retailer Tier Mix: ${Object.entries(retTierCounts).map(([t,n])=>`${t}:${n}`).join(', ')}
 
-INDIVIDUAL MECHANIC DATA (Name|City|State|Tier|Points|Photos):
-${csvSummary}
+── MECHANICS (aftermarket demand signal — earn points by photographing NBC installations) ──
+Total Mechanics: ${totalMechanics} | Mapped to network: ${mappedMechanics}
+Total Photos (bearing installations verified): ${totalPhotos}
+Tier distribution: Bronze:${tierCounts.Bronze} | Silver:${tierCounts.Silver} | Gold:${tierCounts.Gold} | Diamond:${tierCounts.Diamond}
+High-tier mechanics (Gold+Diamond): ${highTierPct}%
+Avg photos per mechanic: ${(totalPhotos/Math.max(totalMechanics,1)).toFixed(1)}
 
-═══════════════════════════════════════
+Zone-level mechanic demand (photos = bearing replacements):
+${Object.entries(zoneDemand).map(([z,d])=>`  ${z}: ${d.mechanics} mechanics, ${d.photos} photos, ${d.points} pts`).join('\n')||'  No mapped data yet'}
+
+Top cities by mechanic activity:
+${topCities.map(c=>`  ${c.city},${c.state}: ${c.count} mechs, ${c.photos} photos`).join('\n')}
+
+NOTE: Every photo = 1 bearing installation verified = real aftermarket demand. Points are a proxy for mechanic engagement, not the end goal.
+
+═══════════════════════════════════════════════════════════
 CHAIN-OF-THOUGHT INSTRUCTIONS:
-═══════════════════════════════════════
-Think through these questions step by step BEFORE generating output:
+═══════════════════════════════════════════════════════════
 
-STEP 1 — ENGAGEMENT ANALYSIS:
- - What % of mechanics are highly active (Gold + Diamond)? Is this good or bad?
- - Which cities show strongest engagement (photos per mechanic ratio)?
- - Any city with many mechanics but low photos = disengagement risk?
+STEP 1 — PIPELINE HEALTH:
+ - Compare stockist targets vs estimated retailer actuals. Estimate achievement %.
+ - Which zone has strongest demand (photos + retailer purchase combined)?
+ - Identify the weakest zone or gap in the network.
+ - Mechanic demand signal: High(>200 total photos), Medium(50-200), Low(<50)
 
-STEP 2 — GEOGRAPHIC OPPORTUNITY:
- - Which major Indian industrial cities are MISSING from our data (proxy for untapped market)?
- - Which states have high mechanic density suggesting strong NBC brand presence?
+STEP 2 — KEY INSIGHTS (6 insights):
+ - What does the mechanic photo data tell us about aftermarket demand by zone?
+ - Which retailers are performing above/below target?
+ - Are there distributors with too few retailers?
+ - What's the outstanding credit risk?
+ - Which zones need urgent PPC/territory action?
 
-STEP 3 — SALES FORECASTING (30-day):
- - If current avg submission rate continues per city, project photo submissions for next 30 days
- - Factor in tier progression: Silver/Gold mechanics submit 2x more than Bronze
- - Give realistic growth % estimates
+STEP 3 — 30-DAY SALES FORECAST BY ZONE:
+ - For each of 5 zones (North/South/East/West/Central):
+   - current_monthly_units = distributor targets for that zone (realistic actuals ~ 70-85% of target)
+   - projected_30d_units = factoring mechanic demand signal, retailer activity, and zone seasonality
+   - growth_pct = realistic YoY growth estimate
+   - demand_signal = High/Medium/Low based on zone mechanic activity
+ - Higher photo activity in a zone = higher bearing replacement demand = higher sales potential
 
-STEP 4 — PPC PLANNING:
- - For Google Ads: target mechanics searching "bearing supplier near me", "NBC bearing dealer"
- - For Meta Ads: target 25-45 male mechanics, auto repair interest, tier-2/tier-3 cities
- - Allocate INR budget proportional to market size and current mechanic density gaps
- - Prioritize cities where we have SOME mechanics (proof of concept) but room to grow
+STEP 4 — CHANNEL PERFORMANCE SCORECARD (all 4 channels):
+ - Stockists: score 0-100 based on zone coverage, target feasibility, credit limits
+ - Distributors: score based on retailer count, target vs retailer actual
+ - Retailers: score based on purchase volume, outstanding, tier mix
+ - Mechanics: score based on photo rate, tier progression, coverage
 
-STEP 5 — STOCK SUPPLY PLANNING:
- - High photos = high bearing replacement rate = need more stock
- - Diamond/Gold mechanics in a city = dealers should stock premium SKUs
- - Bronze-heavy cities = entry-level bearing SKUs (6200, 6300 series)
+STEP 5 — PPC CAMPAIGNS (6 campaigns targeting aftermarket sales):
+ - DO NOT target mechanic recruitment in PPC — target SELLING BEARINGS to:
+   a) Retailers: "NBC Bearing dealer near me", "buy NBC bearings wholesale"
+   b) Mechanics: "NBC bearing installation", "bearing replacement supplier"
+   c) Fleet buyers: "industrial bearing supplier India", "automotive bearing distributor"
+   d) B2B: target purchasing managers in auto workshops, manufacturing plants
+ - Platforms: Google Ads for B2B intent, Meta Ads for mechanics (25-45 male, workshop interest)
+ - Allocate budget to highest-demand zones first
+ - Include specific keyword lists relevant to NBC Bearing aftermarket
 
-STEP 6 — RETENTION STRATEGIES:
- - How to push Bronze→Silver? (most critical mass)
- - Gold→Diamond upsell strategies?
- - What rewards/nudges work best at each tier?
+STEP 6 — TERRITORY OPPORTUNITIES (6 cities/zones):
+ - Where do we have active mechanics but NO mapped retailer? → immediate retailer recruitment
+ - Where do we have Gold/Diamond mechanics but low retailer purchase? → push stock through
+ - Which states have zero mechanic coverage? → distributor expansion
+ - Cities with high mechanic photography but no nearby stockist? → supply gap
 
-═══════════════════════════════════════
-OUTPUT REQUIREMENTS:
-═══════════════════════════════════════
-Return ONLY a valid JSON object with NO markdown, NO code fences, NO explanation outside the JSON.
-Use this exact structure:
+STEP 7 — STOCK RECOMMENDATIONS (6 locations):
+ - High mechanic photos in a city = high bearing wear = stock demand at nearest retailer/distributor
+ - Gold/Diamond mechanics use premium series: deep groove bearings 6200-6310, taper TAPER series
+ - Bronze-heavy areas: entry-level 6000, 6200 series
+ - Outstanding credit = cash flow issue → reduce credit, push pre-paid stock programs
+ - Flag urgency: High if critical zone stock gap, Medium if growing demand, Low if stable
 
+STEP 8 — TOP PERFORMERS (8 entities across all 4 channels):
+ - 2 top retailers by monthly purchase volume
+ - 2 top distributors by retailer coverage and target
+ - 1 top stockist by zone performance
+ - 2 top mechanics (Diamond/Gold) driving demand
+ - 1 combined metric winner
+
+═══════════════════════════════════════════════════════════
+OUTPUT — Return ONLY valid JSON, no markdown fences:
+═══════════════════════════════════════════════════════════
 {
-  "thinking_summary": "2-3 sentences summarizing your chain-of-thought reasoning",
+  "thinking_summary": "2-3 sentence summary of chain-of-thought reasoning focused on bearing sales",
+  "pipeline_health": {
+    "total_target_units_monthly": 0,
+    "estimated_actual_units_monthly": 0,
+    "achievement_pct": 0,
+    "top_zone": "North|South|East|West|Central",
+    "weakest_zone": "Zone name",
+    "mechanic_demand_signal": "High|Medium|Low",
+    "mechanic_engagement_pct": 0
+  },
   "insights": [
-    {
-      "title": "Short insight title",
-      "detail": "2-3 sentence data-driven explanation",
-      "action": "Specific actionable next step",
-      "impact": "High|Medium|Low",
-      "icon": "emoji"
-    }
+    { "title": "Short title", "detail": "2-3 sentence data-driven explanation", "action": "Specific next step", "impact": "High|Medium|Low", "icon": "emoji" }
   ],
-  "forecast": [
-    {
-      "city": "City name",
-      "state": "State name",
-      "current_mechanics": 0,
-      "current_photos_total": 0,
-      "projected_photos_30d": 0,
-      "projected_new_mechanics_30d": 0,
-      "growth_pct": 0,
-      "confidence": "High|Medium|Low"
-    }
+  "sales_forecast": [
+    { "zone": "North", "current_monthly_units": 0, "projected_30d_units": 0, "growth_pct": 0, "demand_signal": "High|Medium|Low", "key_driver": "one sentence", "confidence": "High|Medium|Low" }
   ],
-  "ppc": [
-    {
-      "city": "City name",
-      "state": "State",
-      "platform": "Google Ads|Meta Ads|Both",
-      "budget_inr": 0,
-      "keywords": ["keyword1", "keyword2"],
-      "target_audience": "Description",
-      "best_time": "e.g. Weekdays 8am-12pm",
-      "expected_reach": 0,
-      "expected_leads": 0,
-      "priority": "High|Medium|Low"
-    }
+  "channel_performance": [
+    { "channel": "Stockists", "icon": "🏭", "score": 0, "target_achievement_pct": 0, "top_entity": "entity name", "strength": "one-line strength", "gap": "one-line gap", "action": "specific action" }
   ],
-  "stock": [
-    {
-      "city": "City name",
-      "state": "State",
-      "priority": "High|Medium|Low",
-      "mechanics_count": 0,
-      "photos_submitted": 0,
-      "recommended_stock_units": 0,
-      "top_skus": ["SKU1", "SKU2", "SKU3"],
-      "rationale": "Why this city needs this stock"
-    }
+  "ppc_campaigns": [
+    { "campaign_name": "Campaign Name", "objective": "Drive bearing sales to retailers", "target_channel": "Retailers|Mechanics|Distributors|B2B", "region": "zone or city", "platform": "Google Ads|Meta Ads|Both", "budget_inr": 0, "keywords": ["kw1","kw2","kw3"], "target_audience": "description", "expected_impressions": 0, "expected_conversions": 0, "priority": "High|Medium|Low" }
   ],
-  "retention": [
-    {
-      "from_tier": "Bronze|Silver|Gold",
-      "to_tier": "Silver|Gold|Diamond",
-      "mechanics_count": 0,
-      "avg_pts_needed": 0,
-      "strategy": "Specific engagement strategy",
-      "incentive": "Specific reward/incentive to offer",
-      "timeline": "e.g. 3-4 weeks with 3 photos/week"
-    }
+  "territory_opportunities": [
+    { "zone": "North", "city": "City", "state": "State", "opportunity_type": "Expand network|Increase volume|Fill gap|Launch", "potential_units": 0, "action": "specific step", "priority": "High|Medium|Low" }
   ],
-  "untapped_cities": [
-    {
-      "city": "City",
-      "state": "State",
-      "why": "Reason this city is high potential",
-      "suggested_action": "Specific first step"
-    }
+  "stock_recommendations": [
+    { "zone": "North", "city": "City", "retailer_count": 0, "mechanic_activity": "X mechanics, Y photos", "recommended_units": 0, "sku_focus": ["NBC 6205","NBC 6305"], "rationale": "why", "urgency": "High|Medium|Low" }
   ],
-  "summary": "Executive summary paragraph in plain English, 4-5 sentences covering overall health, top opportunity, and top risk."
+  "top_performers": [
+    { "rank": 1, "entity_type": "Retailer|Distributor|Stockist|Mechanic", "name": "name", "city": "city", "metric_label": "Monthly Purchase", "metric_value": "180 units", "recognition": "short acknowledgement" }
+  ],
+  "summary": "Executive summary paragraph (4-5 sentences): overall sales pipeline health, top opportunity, key risk, recommended first action for NBC management to drive aftermarket volume growth."
 }
 
-Provide 5 insights, top 8 cities for forecast, top 6 cities for PPC, top 8 cities for stock, all 3 tier transitions for retention, and 4 untapped cities.
+Provide: 6 insights, 5 zones for forecast, 4 channel scorecards, 6 PPC campaigns, 6 territory opportunities, 6 stock recommendations, 8 top performers.
 `;
 
-        console.log('[analyze] Sending to Gemini…');
+        console.log('[analyze] Sending full-channel prompt to Gemini…');
         const genAI = new GoogleGenerativeAI(GEMINI_KEY);
 
-        // Try models in order until one works
-        const MODELS = [
-          'gemini-3-flash-preview',
-          'gemini-2.5-flash',
-          'gemini-2.0-flash',
-        ];
+        const MODELS = ['gemini-3-flash-preview', 'gemini-2.5-flash', 'gemini-2.0-flash'];
         let result;
         for (const modelName of MODELS) {
           try {
             const model = genAI.getGenerativeModel({
               model: modelName,
-              generationConfig: {
-                temperature: 1.0,
-                topP: 0.95,
-                maxOutputTokens: 65536,
-                responseMimeType: 'application/json',
-              },
+              generationConfig: { temperature: 1.0, topP: 0.95, maxOutputTokens: 65536, responseMimeType: 'application/json' }
             });
             result = await model.generateContent(prompt);
             console.log(`[analyze] ✅ Used model: ${modelName}`);
@@ -649,39 +676,30 @@ Provide 5 insights, top 8 cities for forecast, top 6 cities for PPC, top 8 citie
             console.log(`[analyze] Model ${modelName} failed: ${tryErr.message.split('\n')[0]}`);
           }
         }
-        if (!result) {
-          // ── HuggingFace fallback ────────────────────────────────────────
-          console.log('[analyze] All Gemini models failed — falling back to HuggingFace…');
-          const hfPrompt = `${prompt}\n\nIMPORTANT: Respond with valid JSON only. No markdown, no explanation.`;
-          const hfText = await callHuggingFace(hfPrompt, 'analyze');
-          let cleaned2 = hfText;
-          const fb = cleaned2.indexOf('{'); const lb = cleaned2.lastIndexOf('}');
-          if (fb !== -1 && lb > fb) cleaned2 = cleaned2.slice(fb, lb + 1);
-          const analysis2 = JSON.parse(cleaned2);
-          return json(res, 200, { ok: true, analysis: analysis2 });
-        }
-        const rawText  = result.response.text().trim();
 
-        // Robustly extract the JSON object — handles markdown fences, leading/trailing text, extra commentary
-        let cleaned = rawText;
-        // Strip markdown code fences (```json ... ``` or ``` ... ```)
-        cleaned = cleaned.replace(/^```(?:json)?\s*/im, '').replace(/```\s*$/im, '').trim();
-        // If Gemini still prefixed text, find the first '{' and last '}' and extract that range
-        const firstBrace = cleaned.indexOf('{');
-        const lastBrace  = cleaned.lastIndexOf('}');
-        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-          cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+        if (!result) {
+          console.log('[analyze] All Gemini models failed — falling back to HuggingFace…');
+          const hfText = await callHuggingFace(prompt + '\n\nRespond with valid JSON only.', 'analyze');
+          let c2 = hfText;
+          const fb2 = c2.indexOf('{'); const lb2 = c2.lastIndexOf('}');
+          if (fb2 !== -1 && lb2 > fb2) c2 = c2.slice(fb2, lb2 + 1);
+          return json(res, 200, { ok: true, analysis: JSON.parse(c2) });
         }
+
+        let cleaned = result.response.text().trim();
+        cleaned = cleaned.replace(/^```(?:json)?\s*/im, '').replace(/```\s*$/im, '').trim();
+        const fb = cleaned.indexOf('{'); const lb = cleaned.lastIndexOf('}');
+        if (fb !== -1 && lb !== -1 && lb > fb) cleaned = cleaned.slice(fb, lb + 1);
 
         let analysis;
         try {
           analysis = JSON.parse(cleaned);
         } catch (parseErr) {
-          console.error('[analyze] JSON parse failed. Raw text snippet:', rawText.slice(0, 300));
+          console.error('[analyze] JSON parse failed:', cleaned.slice(0, 300));
           throw new Error(`Gemini returned malformed JSON: ${parseErr.message}`);
         }
 
-        console.log('[analyze] ✅ Gemini responded successfully');
+        console.log('[analyze] ✅ Full-channel sales intelligence ready');
         return json(res, 200, { ok: true, analysis });
       } catch (e) {
         console.error('[analyze] Error:', e.message);
@@ -792,6 +810,153 @@ Guidelines:
           return json(res, 200, { ok: true, reply });
         } catch (e) {
           console.error('[chat] Error:', e.message);
+          return json(res, 500, { ok: false, error: e.message });
+        }
+      })();
+    });
+    return;
+  }
+
+  // ── GET /network-data → stockists, distributors, retailers, hierarchy CSVs
+  if (req.method === 'GET' && url === '/network-data') {
+    try {
+      const pcsv = (text) => {
+        const lines = text.trim().split('\n');
+        const headers = lines[0].split(',').map(h => h.trim());
+        return lines.slice(1).filter(l => l.trim()).map(line => {
+          const cols = line.split(',').map(c => c.trim());
+          const obj = {};
+          headers.forEach((h, i) => obj[h] = cols[i] ?? '');
+          return obj;
+        });
+      };
+      const read = (name) => {
+        const p = path.join(ROOT, 'data', name);
+        return fs.existsSync(p) ? pcsv(fs.readFileSync(p, 'utf-8')) : [];
+      };
+      return json(res, 200, {
+        ok: true,
+        stockists:    read('stockists.csv'),
+        distributors: read('distributors.csv'),
+        retailers:    read('retailers.csv'),
+        hierarchy:    read('network_hierarchy.csv'),
+      });
+    } catch (e) {
+      return json(res, 500, { ok: false, error: e.message });
+    }
+  }
+
+  // ── POST /network-analyze → Gemini AI analysis for stockist/distributor/retailer
+  if (req.method === 'POST' && url === '/network-analyze') {
+    let nbody = '';
+    req.on('data', chunk => { nbody += chunk; });
+    req.on('end', () => {
+      (async () => {
+        try {
+          const GEMINI_KEY = process.env.GEMINI_API_KEY;
+          if (!GEMINI_KEY) throw new Error('GEMINI_API_KEY not set in .env');
+          const { entity } = JSON.parse(nbody);
+          if (!['stockist','distributor','retailer'].includes(entity))
+            throw new Error('entity must be stockist, distributor, or retailer');
+
+          const pcsv = (text) => {
+            const lines = text.trim().split('\n');
+            const headers = lines[0].split(',').map(h => h.trim());
+            return lines.slice(1).filter(l => l.trim()).map(line => {
+              const cols = line.split(',').map(c => c.trim());
+              const obj = {}; headers.forEach((h, i) => obj[h] = cols[i] ?? ''); return obj;
+            });
+          };
+          const read = (name) => {
+            const p = path.join(ROOT, 'data', name);
+            return fs.existsSync(p) ? pcsv(fs.readFileSync(p, 'utf-8')) : [];
+          };
+          const stockists    = read('stockists.csv');
+          const distributors = read('distributors.csv');
+          const retailers    = read('retailers.csv');
+          const hierarchy    = read('network_hierarchy.csv');
+
+          let dataSummary = '';
+          if (entity === 'stockist') {
+            dataSummary = stockists.map(s =>
+              `Zone=${s.zone} City=${s.city} State=${s.state} Target=${s.monthly_target_units}units CreditLimit=₹${s.credit_limit_lakh}L Distributors=${distributors.filter(d=>d.stockist_id===s.stockist_id).length} Status=${s.status}`
+            ).join('\n');
+          } else if (entity === 'distributor') {
+            dataSummary = distributors.map(d => {
+              const rets = retailers.filter(r => r.distributor_id === d.distributor_id).length;
+              const stk = stockists.find(s => s.stockist_id === d.stockist_id);
+              return `ID=${d.distributor_id} City=${d.city} State=${d.state} Stockist=${stk?.zone||d.stockist_id} Target=${d.monthly_target_units}units CreditLimit=₹${d.credit_limit_lakh}L Retailers=${rets} Status=${d.status}`;
+            }).join('\n');
+          } else {
+            dataSummary = retailers.map(r => {
+              const dist = distributors.find(d => d.distributor_id === r.distributor_id);
+              const mechCount = hierarchy.filter(h => h.retailer_id === r.retailer_id).length;
+              return `ID=${r.retailer_id} City=${r.city} State=${r.state} Distributor=${dist?.city||r.distributor_id} Tier=${r.tier} Purchases=${r.monthly_purchase_units}units Points=${r.loyalty_points} Outstanding=₹${r.outstanding_amount} Mechanics=${mechCount}`;
+            }).join('\n');
+          }
+
+          const entityLabel = entity === 'stockist' ? 'Stockist (Zone Hub)' : entity === 'distributor' ? 'Distributor' : 'Retailer';
+          const prompt = [
+            `You are a supply chain and sales analytics AI for NBC Bearing, an Indian industrial bearing manufacturer.`,
+            `Analyze the following ${entityLabel} network data and return a JSON intelligence report.`,
+            ``,
+            `DATA (${entity === 'stockist' ? stockists.length : entity === 'distributor' ? distributors.length : retailers.length} records):`,
+            dataSummary,
+            ``,
+            `CONTEXT: NBC Bearing operates a 4-tier channel: Stockists → Distributors → Retailers → Mechanics.`,
+            `There are ${stockists.length} stockists, ${distributors.length} distributors, ${retailers.length} retailers, and ${hierarchy.length} mechanic-retailer links.`,
+            ``,
+            `ANALYSIS STEPS:`,
+            `1. Identify the top 3 performing ${entity}s and what makes them successful.`,
+            `2. Identify the bottom 2-3 ${entity}s that need attention and why.`,
+            `3. Spot geographic concentration risks or gaps.`,
+            `4. Identify credit limit vs throughput mismatches.`,
+            `5. Recommend 3-4 concrete strategic actions for the next 30 days.`,
+            `6. Identify 2-3 key risks in the ${entity} layer of the channel.`,
+            `7. Spot 2-3 growth opportunities.`,
+            ``,
+            `Return ONLY valid JSON with this exact structure:`,
+            `{`,
+            `  "thinking": "brief chain-of-thought across all 7 steps (2-3 sentences)",`,
+            `  "exec_summary": "2-3 sentence executive summary for management",`,
+            `  "insights": [{"icon":"emoji","title":"...","priority":"High|Medium|Low","detail":"...","action":"..."}],`,
+            `  "opportunities": [{"icon":"emoji","title":"...","detail":"...","action":"..."}],`,
+            `  "risks": [{"icon":"emoji","title":"...","priority":"High|Medium|Low","detail":"...","action":"..."}],`,
+            `  "recommendations": [{"title":"...","detail":"...","priority":"High|Medium|Low"}]`,
+            `}`,
+            `Rules: insights=4-5 items, opportunities=2-3 items, risks=2-3 items, recommendations=3-4 items.`,
+          ].join('\n');
+
+          const genAI = new GoogleGenerativeAI(GEMINI_KEY);
+          const MODELS = ['gemini-3-flash-preview','gemini-2.5-flash','gemini-2.0-flash'];
+          let result;
+          for (const modelName of MODELS) {
+            try {
+              console.log(`[network-analyze/${entity}] Trying ${modelName}…`);
+              const model = genAI.getGenerativeModel({
+                model: modelName,
+                generationConfig: { temperature: 1.0, topP: 0.95, maxOutputTokens: 16384, responseMimeType: 'application/json' },
+              });
+              result = await model.generateContent(prompt);
+              console.log(`[network-analyze/${entity}] ✅ ${modelName}`);
+              break;
+            } catch (e) { console.log(`[network-analyze/${entity}] ${modelName} failed: ${e.message.slice(0,60)}`); }
+          }
+          let analysis;
+          if (!result) {
+            const hfText = await callHuggingFace(prompt + '\n\nRespond with valid JSON only.', `network-analyze/${entity}`);
+            let c = hfText; const fb = c.indexOf('{'), lb = c.lastIndexOf('}');
+            if (fb !== -1 && lb > fb) c = c.slice(fb, lb + 1);
+            analysis = JSON.parse(c);
+          } else {
+            let c = result.response.text().trim().replace(/^```(?:json)?\s*/im,'').replace(/```\s*$/im,'').trim();
+            const fb = c.indexOf('{'), lb = c.lastIndexOf('}');
+            if (fb !== -1 && lb > fb) c = c.slice(fb, lb + 1);
+            analysis = JSON.parse(c);
+          }
+          return json(res, 200, { ok: true, analysis });
+        } catch (e) {
+          console.error('[network-analyze]', e.message);
           return json(res, 500, { ok: false, error: e.message });
         }
       })();

@@ -1,0 +1,46 @@
+retailer_id,shop_name,owner_name,city,state,phone,email,distributor_id,joined_at,monthly_purchase_units,loyalty_points,tier,outstanding_amount,status
+RET-001,Delhi Garage & Bearings,Kamal Nath,Delhi,Delhi,919822001001,ret001@nbcretail.in,DIST-001,2022-06-01T10:00:00.000Z,180,2400,Gold,45000,Active
+RET-002,Gurgaon Auto Parts,Naveen Yadav,Gurgaon,Haryana,919822002002,ret002@nbcretail.in,DIST-001,2022-06-15T09:00:00.000Z,160,1800,Silver,38000,Active
+RET-003,Noida Bearings World,Arun Tyagi,Noida,Uttar Pradesh,919822003003,ret003@nbcretail.in,DIST-001,2022-07-01T08:30:00.000Z,140,1200,Silver,32000,Active
+RET-004,Lucknow Auto Accessories,Santosh Singh,Lucknow,Uttar Pradesh,919822004004,ret004@nbcretail.in,DIST-002,2022-06-10T10:00:00.000Z,130,900,Bronze,28000,Active
+RET-005,Agra Bearings Mart,Vijay Kumar,Agra,Uttar Pradesh,919822005005,ret005@nbcretail.in,DIST-002,2022-06-25T09:30:00.000Z,110,650,Bronze,22000,Active
+RET-006,Kanpur Motor Parts,Rajan Tiwari,Kanpur,Uttar Pradesh,919822006006,ret006@nbcretail.in,DIST-002,2022-07-10T11:00:00.000Z,120,780,Bronze,25000,Active
+RET-007,Amritsar Bearings Co,Gurpreet Singh,Amritsar,Punjab,919822007007,ret007@nbcretail.in,DIST-003,2022-06-05T09:00:00.000Z,100,560,Bronze,18000,Active
+RET-008,Chandigarh Spare Parts,Paramjit Kaur,Chandigarh,Punjab,919822008008,ret008@nbcretail.in,DIST-003,2022-06-20T10:00:00.000Z,130,880,Bronze,26000,Active
+RET-009,Jaipur Royal Bearings,Rajendra Singhvi,Jaipur,Rajasthan,919822009009,ret009@nbcretail.in,DIST-003,2022-07-05T08:00:00.000Z,150,1500,Silver,35000,Active
+RET-010,Mumbai Western Bearings,Pravin Shinde,Mumbai,Maharashtra,919822010010,ret010@nbcretail.in,DIST-004,2022-06-01T10:00:00.000Z,220,3200,Gold,58000,Active
+RET-011,Pune Automotive Depot,Suhas Kulkarni,Pune,Maharashtra,919822011011,ret011@nbcretail.in,DIST-004,2022-06-12T09:30:00.000Z,200,2800,Gold,52000,Active
+RET-012,Thane Bearing House,Ajit Patkar,Thane,Maharashtra,919822012012,ret012@nbcretail.in,DIST-004,2022-07-01T11:00:00.000Z,160,1600,Silver,38000,Active
+RET-013,Ahmedabad Apex Bearings,Mehul Shah,Ahmedabad,Gujarat,919822013013,ret013@nbcretail.in,DIST-005,2022-06-08T09:00:00.000Z,190,2600,Gold,48000,Active
+RET-014,Surat Diamond Spares,Bimal Mehta,Surat,Gujarat,919822014014,ret014@nbcretail.in,DIST-005,2022-06-22T10:00:00.000Z,170,2000,Gold,42000,Active
+RET-015,Vadodara Auto Parts,Nirav Patel,Vadodara,Gujarat,919822015015,ret015@nbcretail.in,DIST-005,2022-07-08T08:30:00.000Z,140,1100,Silver,30000,Active
+RET-016,Nagpur Central Bearings,Dhananjay Gawande,Nagpur,Maharashtra,919822016016,ret016@nbcretail.in,DIST-006,2022-06-15T09:30:00.000Z,120,880,Bronze,26000,Active
+RET-017,Nashik Parts & Bearings,Mahadev Hire,Nashik,Maharashtra,919822017017,ret017@nbcretail.in,DIST-006,2022-07-01T10:00:00.000Z,100,620,Bronze,20000,Active
+RET-018,Aurangabad Auto World,Shahid Khan,Aurangabad,Maharashtra,919822018018,ret018@nbcretail.in,DIST-006,2022-07-15T09:00:00.000Z,110,720,Bronze,22000,Active
+RET-019,Bangalore Tech Bearings,Ravi Kumar BN,Bangalore,Karnataka,919822019019,ret019@nbcretail.in,DIST-007,2022-06-01T10:00:00.000Z,210,3000,Gold,55000,Active
+RET-020,Mysore Palace Bearings,Shankar Gowda,Mysore,Karnataka,919822020020,ret020@nbcretail.in,DIST-007,2022-06-18T09:30:00.000Z,140,1200,Silver,32000,Active
+RET-021,Mangalore Coastal Spares,Mohan Shenoy,Mangalore,Karnataka,919822021021,ret021@nbcretail.in,DIST-007,2022-07-05T08:00:00.000Z,120,900,Bronze,26000,Active
+RET-022,Chennai Marina Bearings,Annamalai K,Chennai,Tamil Nadu,919822022022,ret022@nbcretail.in,DIST-008,2022-06-05T09:00:00.000Z,180,2400,Gold,46000,Active
+RET-023,Coimbatore Textile Spares,Murugesan P,Coimbatore,Tamil Nadu,919822023023,ret023@nbcretail.in,DIST-008,2022-06-25T10:30:00.000Z,150,1600,Silver,38000,Active
+RET-024,Madurai Auto Bearings,Selvam R,Madurai,Tamil Nadu,919822024024,ret024@nbcretail.in,DIST-008,2022-07-12T09:00:00.000Z,120,900,Bronze,26000,Active
+RET-025,Hyderabad Hi-Tech Bearings,Ravi Prasad,Hyderabad,Telangana,919822025025,ret025@nbcretail.in,DIST-009,2022-06-02T10:00:00.000Z,190,2700,Gold,50000,Active
+RET-026,Vizag Port Bearings,Chalam Naidu,Visakhapatnam,Andhra Pradesh,919822026026,ret026@nbcretail.in,DIST-009,2022-06-20T09:00:00.000Z,140,1300,Silver,34000,Active
+RET-027,Kochi Marine Bearings,Jose Mathew,Kochi,Kerala,919822027027,ret027@nbcretail.in,DIST-009,2022-07-08T11:00:00.000Z,130,1100,Silver,30000,Active
+RET-028,Kolkata Metro Bearings,Tapas Roy,Kolkata,West Bengal,919822028028,ret028@nbcretail.in,DIST-010,2022-06-05T09:30:00.000Z,160,2000,Gold,42000,Active
+RET-029,Durgapur Steel Bearings,Ratan Mukherjee,Durgapur,West Bengal,919822029029,ret029@nbcretail.in,DIST-010,2022-06-22T10:00:00.000Z,130,1100,Silver,30000,Active
+RET-030,Siliguri Tea Garden Parts,Babu Chhetri,Siliguri,West Bengal,919822030030,ret030@nbcretail.in,DIST-010,2022-07-10T09:00:00.000Z,100,600,Bronze,18000,Active
+RET-031,Patna Bihar Bearings,Rajkumar Sinha,Patna,Bihar,919822031031,ret031@nbcretail.in,DIST-011,2022-06-08T09:00:00.000Z,120,780,Bronze,24000,Active
+RET-032,Jamshedpur Steel City Parts,Amitava Sen,Jamshedpur,Jharkhand,919822032032,ret032@nbcretail.in,DIST-011,2022-06-28T10:30:00.000Z,140,1000,Silver,28000,Active
+RET-033,Ranchi Capital Bearings,Sunil Mahto,Ranchi,Jharkhand,919822033033,ret033@nbcretail.in,DIST-011,2022-07-15T09:00:00.000Z,110,700,Bronze,22000,Active
+RET-034,Bhubaneswar Temple City Parts,Samir Nayak,Bhubaneswar,Odisha,919822034034,ret034@nbcretail.in,DIST-012,2022-06-12T10:00:00.000Z,120,850,Bronze,24000,Active
+RET-035,Cuttack Silver City Bearings,Prasanta Das,Cuttack,Odisha,919822035035,ret035@nbcretail.in,DIST-012,2022-07-01T09:30:00.000Z,100,580,Bronze,18000,Active
+RET-036,Rourkela Steel Bearings,Hemant Mishra,Rourkela,Odisha,919822036036,ret036@nbcretail.in,DIST-012,2022-07-18T09:00:00.000Z,110,680,Bronze,20000,Active
+RET-037,Bhopal Capital Parts,Arvind Tiwari,Bhopal,Madhya Pradesh,919822037037,ret037@nbcretail.in,DIST-013,2022-06-05T10:00:00.000Z,130,1000,Silver,28000,Active
+RET-038,Indore Commercial Bearings,Rakesh Jain,Indore,Madhya Pradesh,919822038038,ret038@nbcretail.in,DIST-013,2022-06-20T09:30:00.000Z,150,1400,Silver,34000,Active
+RET-039,Jabalpur Forest Park Spares,Narayan Dubey,Jabalpur,Madhya Pradesh,919822039039,ret039@nbcretail.in,DIST-013,2022-07-08T08:30:00.000Z,100,650,Bronze,20000,Active
+RET-040,Dehradun Valley Bearings,Gaurav Bisht,Dehradun,Uttarakhand,919822040040,ret040@nbcretail.in,DIST-014,2022-06-10T09:00:00.000Z,100,700,Bronze,20000,Active
+RET-041,Shimla Hill Bearings,Virender Chauhan,Shimla,Himachal Pradesh,919822041041,ret041@nbcretail.in,DIST-014,2022-06-28T10:00:00.000Z,80,480,Bronze,15000,Active
+RET-042,Haridwar Ganga Bearings,Vinay Semwal,Haridwar,Uttarakhand,919822042042,ret042@nbcretail.in,DIST-014,2022-07-15T09:30:00.000Z,90,550,Bronze,17000,Active
+RET-043,Raipur Steel City Parts,Dinesh Chandrakar,Raipur,Chhattisgarh,919822043043,ret043@nbcretail.in,DIST-015,2022-06-15T09:00:00.000Z,120,820,Bronze,24000,Active
+RET-044,Bilaspur Auto Bearings,Mahesh Gupta,Bilaspur,Chhattisgarh,919822044044,ret044@nbcretail.in,DIST-015,2022-07-01T10:00:00.000Z,100,620,Bronze,18000,Active
+RET-045,Durg Industrial Bearings,Praful Sahu,Durg,Chhattisgarh,919822045045,ret045@nbcretail.in,DIST-015,2022-07-18T09:00:00.000Z,90,500,Bronze,16000,Active

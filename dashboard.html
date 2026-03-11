@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -21,6 +21,12 @@
     .tab{background:transparent;border:1px solid #2d3748;border-radius:8px;color:#718096;padding:8px 18px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all .2s}
     .tab.active{background:#2d3748;color:#e2e8f0;border-color:#4a5568}
     .tab:hover:not(.active){border-color:#4a5568;color:#a0aec0}
+    /* ── Sub-tabs (inside Dashboard) ── */
+    .sub-tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid #2d3748;padding-bottom:0}
+    .sub-tab{background:transparent;border:none;border-bottom:3px solid transparent;color:#718096;padding:9px 20px 10px;font-size:0.83rem;font-weight:600;cursor:pointer;transition:all .2s;margin-bottom:-2px}
+    .sub-tab.active{color:#63b3ed;border-bottom-color:#63b3ed}
+    .sub-tab:hover:not(.active){color:#a0aec0;border-bottom-color:#4a5568}
+    .sub-pane{display:block}
 
     /* ── Header action buttons ── */
     .hdr-btns{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}
@@ -202,6 +208,114 @@
     .ai-steps li{font-size:0.8rem;color:#718096;padding:4px 0;display:flex;align-items:center;gap:8px}
     .ai-steps li.done{color:#68d391}.ai-steps li.active{color:#f6ad55}
     .step-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+    /* ── NEW AI INSIGHTS: Pipeline Health Strip ── */
+    .pipeline-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+    @media(max-width:800px){.pipeline-strip{grid-template-columns:repeat(2,1fr)}}
+    .pipeline-kpi{background:#1a1f2e;border:1px solid #2d3748;border-radius:14px;padding:18px 20px;text-align:center;position:relative;overflow:hidden}
+    .pipeline-kpi::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--pki-a,.553c9a20),transparent);pointer-events:none}
+    .pipeline-kpi .pkval{font-size:2rem;font-weight:900;color:var(--pki-c,#9f7aea);line-height:1;margin-bottom:4px}
+    .pipeline-kpi .pklbl{font-size:0.72rem;color:#718096;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+    .pipeline-kpi .pksub{font-size:0.75rem;color:#a0aec0;margin-top:6px}
+    .pipeline-kpi.kpi-target{--pki-c:#9f7aea;--pki-a:#553c9a30}
+    .pipeline-kpi.kpi-achieve{--pki-c:#68d391;--pki-a:#22543d30}
+    .pipeline-kpi.kpi-demand{--pki-c:#f6ad55;--pki-a:#7b341e30}
+    .pipeline-kpi.kpi-zone{--pki-c:#63b3ed;--pki-a:#2a4365 30}
+
+    /* ── Channel Performance Scorecards ── */
+    .channel-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+    @media(max-width:900px){.channel-strip{grid-template-columns:repeat(2,1fr)}}
+    .channel-card{background:#1a1f2e;border:1px solid #2d3748;border-radius:14px;padding:20px 18px;display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;overflow:hidden}
+    .channel-card::after{content:var(--ch-label,'');position:absolute;top:10px;right:10px;font-size:0.62rem;font-weight:800;color:var(--ch-color,#9f7aea);text-transform:uppercase;letter-spacing:.07em;opacity:.7}
+    .ch-icon{font-size:1.9rem}
+    .ch-name{font-size:0.78rem;font-weight:700;color:#e2e8f0;text-transform:uppercase;letter-spacing:.05em}
+    .ch-score-ring{position:relative;width:76px;height:76px}
+    .ch-score-ring svg{width:76px;height:76px;transform:rotate(-90deg)}
+    .ch-score-ring .ring-bg{fill:none;stroke:#2d3748;stroke-width:7}
+    .ch-score-ring .ring-fg{fill:none;stroke:var(--ch-color,#9f7aea);stroke-width:7;stroke-linecap:round;transition:stroke-dasharray .8s ease}
+    .ch-score-val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900;color:var(--ch-color,#9f7aea)}
+    .ch-label{font-size:0.7rem;color:#718096;text-align:center}
+    .ch-gap{font-size:0.75rem;color:#fc8181;margin-top:2px;text-align:center}
+    .ch-action{font-size:0.74rem;color:#9f7aea;background:#1a164a;padding:6px 10px;border-radius:8px;text-align:center;width:100%}
+    .channel-card.ch-stk{--ch-color:#9f7aea;--ch-label:'"STOCKIST"'}
+    .channel-card.ch-dst{--ch-color:#63b3ed;--ch-label:'"DISTRIBUTOR"'}
+    .channel-card.ch-ret{--ch-color:#68d391;--ch-label:'"RETAILER"'}
+    .channel-card.ch-mec{--ch-color:#f6ad55;--ch-label:'"MECHANICS"'}
+
+    /* ── Sales Forecast Zone Table ── */
+    .zone-forecast-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:18px;margin-bottom:22px}
+    @media(max-width:900px){.zone-forecast-grid{grid-template-columns:1fr}}
+    .demand-pill{display:inline-block;padding:2px 10px;border-radius:20px;font-size:0.7rem;font-weight:700}
+    .demand-High{background:#22543d;color:#68d391}
+    .demand-Medium{background:#7b341e30;color:#f6ad55}
+    .demand-Low{background:#2d3748;color:#a0aec0}
+
+    /* ── PPC Campaign Cards ── */
+    .ppc-campaign-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:24px}
+    .ppc-campaign-card{background:#1a1f2e;border:1px solid #2d3748;border-radius:14px;padding:18px;border-top:3px solid var(--ppc-top,#9f7aea)}
+    .ppc-campaign-card[data-pri="High"]{--ppc-top:#fc8181}
+    .ppc-campaign-card[data-pri="Medium"]{--ppc-top:#f6ad55}
+    .ppc-campaign-card[data-pri="Low"]{--ppc-top:#68d391}
+    .ppc-cn{font-size:0.92rem;font-weight:800;color:#e2e8f0;margin-bottom:4px}
+    .ppc-obj{font-size:0.76rem;color:#9f7aea;margin-bottom:10px}
+    .ppc-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+    .ppc-budget2{font-size:1.4rem;font-weight:900;color:#68d391}
+    .ppc-budget2 span{font-size:0.72rem;color:#718096;font-weight:400}
+    .ppc-info{font-size:0.75rem;color:#a0aec0;margin:5px 0;display:flex;justify-content:space-between;gap:8px}
+    .ppc-info label{color:#718096;font-size:0.7rem}
+    .ppc-kws2{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+    .ppc-kws2 .kw{background:#2d3748;color:#b79aed;font-size:0.68rem;padding:3px 8px;border-radius:12px}
+    .ppc-stats2{display:flex;gap:14px;margin-top:10px;background:#0f131a;border-radius:8px;padding:8px 12px}
+    .ppc-st{text-align:center;flex:1}
+    .ppc-st .sv{font-size:1rem;font-weight:800;color:#e2e8f0}
+    .ppc-st .sl{font-size:0.65rem;color:#718096;margin-top:2px}
+
+    /* ── Territory Opportunities ── */
+    .territory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:24px}
+    .territory-card{background:linear-gradient(135deg,#1a1f2e,#151a28);border:1px solid #2d3748;border-radius:14px;padding:18px;border-left:4px solid var(--tc,#63b3ed)}
+    .territory-card[data-pri="High"]{--tc:#fc8181}
+    .territory-card[data-pri="Medium"]{--tc:#f6ad55}
+    .territory-card[data-pri="Low"]{--tc:#68d391}
+    .tc-zone{font-size:0.65rem;font-weight:800;color:#718096;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
+    .tc-city{font-size:1rem;font-weight:700;color:#e2e8f0}
+    .tc-state{font-size:0.74rem;color:#718096;margin-bottom:8px}
+    .tc-type{font-size:0.74rem;color:#63b3ed;background:#1a2c3a;padding:3px 9px;border-radius:12px;display:inline-block;margin-bottom:8px}
+    .tc-units{font-size:1.2rem;font-weight:800;color:#9f7aea}
+    .tc-units span{font-size:0.7rem;color:#718096;font-weight:400}
+    .tc-action{font-size:0.77rem;color:#a0aec0;margin-top:8px;line-height:1.4}
+
+    /* ── Stock Recommendations (updated) ── */
+    .stock-grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:24px}
+    .stock2-card{background:#1a1f2e;border:1px solid #2d3748;border-radius:14px;padding:16px;border-right:4px solid var(--sg,#68d391)}
+    .stock2-card[data-urg="High"]{--sg:#fc8181}
+    .stock2-card[data-urg="Medium"]{--sg:#f6ad55}
+    .stock2-card[data-urg="Low"]{--sg:#68d391}
+    .sg-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+    .sg-city{font-size:0.95rem;font-weight:700;color:#e2e8f0}
+    .sg-zone{font-size:0.65rem;font-weight:800;color:#718096;text-transform:uppercase;letter-spacing:.05em}
+    .sg-urg{font-size:0.65rem;font-weight:800;padding:2px 8px;border-radius:12px}
+    .urg-High{background:#742a2a;color:#fc8181}
+    .urg-Medium{background:#7b341e;color:#f6ad55}
+    .urg-Low{background:#22543d;color:#68d391}
+    .sg-units{font-size:1.4rem;font-weight:900;color:#68d391;margin-bottom:4px}
+    .sg-units span{font-size:0.7rem;color:#718096;font-weight:400}
+    .sg-skus{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+    .sg-skus .sku{background:#2a4365;color:#63b3ed;font-size:0.67rem;padding:2px 7px;border-radius:10px}
+    .sg-rationale{font-size:0.77rem;color:#a0aec0;line-height:1.4}
+
+    /* ── Top Performers Table ── */
+    .top-perf-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-bottom:24px}
+    .perf-row{background:#1a1f2e;border:1px solid #2d3748;border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px}
+    .perf-rank{font-size:1.4rem;font-weight:900;color:#f6ad55;min-width:32px;text-align:center}
+    .perf-info{flex:1;min-width:0}
+    .perf-name{font-size:0.88rem;font-weight:700;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .perf-meta{font-size:0.72rem;color:#718096;margin-top:2px}
+    .perf-badge{font-size:0.65rem;font-weight:800;padding:2px 8px;border-radius:12px;white-space:nowrap}
+    .pb-Retailer{background:#22543d;color:#68d391}.pb-Distributor{background:#2a4365;color:#63b3ed}
+    .pb-Stockist{background:#44337a;color:#b79aed}.pb-Mechanic{background:#7b341e;color:#f6ad55}
+    .perf-val{text-align:right}
+    .perf-vn{font-size:0.9rem;font-weight:800;color:#9f7aea}
+    .perf-vl{font-size:0.65rem;color:#718096;margin-top:2px}
     /* ══════════════════════════════════════
        CHATBOT
     ══════════════════════════════════════ */
@@ -400,6 +514,54 @@
     .city-tier-tbl td{text-align:center}.city-tier-tbl td:first-child{text-align:left;font-weight:600}
     .nx-chart-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
     @media(max-width:800px){.nx-chart-row{grid-template-columns:1fr}}
+    /* ── Loyalty Points Badges ── */
+    .loyalty-stat{background:linear-gradient(135deg,#1a1f2e,#2d3748);border:1px solid #f6ad55;border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;margin-bottom:18px}
+    .loyalty-stat .ls-icon{font-size:1.7rem}
+    .loyalty-stat .ls-info{flex:1}
+    .loyalty-stat .ls-label{font-size:0.75rem;color:#718096;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+    .loyalty-stat .ls-value{font-size:1.5rem;font-weight:800;color:#f6ad55}
+    .loyalty-stat .ls-sub{font-size:0.75rem;color:#a0aec0;margin-top:2px}
+    .loyalty-pts-pill{background:#f6ad5520;border:1px solid #f6ad5560;border-radius:20px;padding:2px 10px;font-size:0.75rem;color:#f6ad55;font-weight:700;white-space:nowrap}
+    /* ── Network Tree (decision-tree card style) ── */
+    .tree-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding:12px 16px;background:#1a1f2e;border-radius:10px;border:1px solid #2d3748}
+    .tree-search{flex:1;background:#0f1117;border:1px solid #2d3748;border-radius:8px;color:#e2e8f0;padding:8px 12px;font-size:0.85rem;outline:none}
+    .tree-search:focus{border-color:#63b3ed}
+    .tree-count-badge{font-size:0.78rem;color:#718096;white-space:nowrap}
+    .net-tree{font-size:0.87rem;padding:4px 0 24px}
+    .tree-node{margin:5px 0;position:relative}
+    .tree-children > .tree-node::before{content:'';position:absolute;left:-22px;top:22px;width:22px;height:2px;background:#2d3748;z-index:1}
+    .tree-row{display:flex;align-items:center;gap:9px;padding:9px 14px;border-radius:10px;border:1px solid #2d3748;background:#161b27;cursor:default;transition:all .18s;min-height:44px;box-shadow:0 1px 6px rgba(0,0,0,.35)}
+    .tree-row:hover{background:#1e2535;border-color:#4a5568;transform:translateX(2px)}
+    .tree-row.stk-row{border-left:4px solid #63b3ed;background:#161e2e}
+    .tree-row.dst-row{border-left:4px solid #68d391;background:#161f1f}
+    .tree-row.ret-row{border-left:4px solid #f6ad55;background:#1e1a14}
+    .tree-row.mech-row{border-left:4px solid #718096;background:#111520}
+    .tree-row.root-row{border-left:4px solid #9f7aea;background:#161529}
+    .tree-children{margin-left:26px;border-left:2px solid #2d3748;padding-left:22px;overflow:hidden}
+    .tree-children.collapsed{display:none}
+    .tree-toggle{cursor:pointer;color:#4a5568;user-select:none;width:18px;text-align:center;font-size:0.72rem;flex-shrink:0;transition:transform .2s;line-height:1}
+    .tree-toggle:hover{color:#a0aec0}
+    .tree-toggle.collapsed{transform:rotate(-90deg)}
+    .tree-toggle.leaf{opacity:0;pointer-events:none}
+    .tree-emoji{font-size:1.05rem;flex-shrink:0}
+    .tree-label{font-weight:700;color:#e2e8f0;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .tree-label.stk{color:#63b3ed}.tree-label.dst{color:#68d391}.tree-label.ret{color:#f6ad55}.tree-label.mech{color:#cbd5e0}
+    .tree-meta{font-size:0.73rem;color:#718096;flex-shrink:0;white-space:nowrap}
+    .tree-count{font-size:0.72rem;color:#4a5568;background:#1a1f2e;border:1px solid #2d3748;border-radius:8px;padding:1px 8px;flex-shrink:0;white-space:nowrap}
+    .tree-pts{border-radius:10px;padding:2px 10px;font-size:0.73rem;font-weight:800;flex-shrink:0;white-space:nowrap}
+    .tree-pts.network{background:#2d2a14;border:1px solid #f6ad5550;color:#f6ad55}
+    .tree-pts.direct{background:#14202e;border:1px solid #63b3ed50;color:#63b3ed}
+    .tree-tier{font-size:0.72rem;padding:2px 8px;border-radius:10px;font-weight:700;flex-shrink:0}
+    .tree-tier.Diamond{background:#0bc5ea15;color:#0bc5ea;border:1px solid #0bc5ea40}
+    .tree-tier.Gold{background:#d69e2e15;color:#d69e2e;border:1px solid #d69e2e40}
+    .tree-tier.Silver{background:#71809615;color:#a0aec0;border:1px solid #71809640}
+    .tree-tier.Bronze{background:#c0562115;color:#dd6b20;border:1px solid #c0562140}
+    .tree-node.hidden{display:none}
+    .tree-row.match{outline:2px solid #63b3ed50;background:rgba(99,179,237,0.07)!important}
+    .tree-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;font-size:0.78rem;color:#718096;padding:10px 14px;background:#1a1f2e;border-radius:8px;border:1px solid #2d3748}
+    .tree-legend span{display:flex;align-items:center;gap:5px}
+    .mlm-note{background:#1a1f2e;border:1px solid #f6ad5540;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#a0aec0;line-height:1.6}
+    .mlm-note strong{color:#f6ad55}
   </style>
 </head>
 <body>
@@ -435,6 +597,13 @@
     <h2 class="loading-title">Loading…</h2>
     <p>Reading from data/mechanics.csv</p>
   </div>
+  <div id="dash-subtabs" class="sub-tabs d-none">
+    <button class="sub-tab active" onclick="switchSubTab('mechanics',this)">🔧 Mechanics</button>
+    <button class="sub-tab" onclick="switchSubTab('stockists',this)">🏭 Stockists</button>
+    <button class="sub-tab" onclick="switchSubTab('distributors',this)">🚛 Distributors</button>
+    <button class="sub-tab" onclick="switchSubTab('retailers',this)">🛍️ Retailers</button>
+    <button class="sub-tab" onclick="switchSubTab('network',this)">🌳 Network Tree</button>
+  </div>
   <div id="dash-content" class="d-none">
     <div class="stats" id="stat-cards"></div>
     <div class="grid2">
@@ -466,6 +635,127 @@
       </tr></thead><tbody id="tbody"></tbody></table></div>
     </div>
   </div>
+  <div id="sub-pane-stockists" class="sub-pane d-none">
+    <div class="net-loading" id="stk-loading">
+      <div class="spinner-icon">↻</div>
+      <h2 class="loading-title">Loading Stockists…</h2>
+    </div>
+    <div id="stk-content" class="d-none">
+      <div class="net-stat-strip" id="stk-stats"></div>
+      <div class="grid2">
+        <div class="card"><div class="card-title">Zone Distribution</div><div class="chart-wrap"><canvas id="stkZoneChart"></canvas></div></div>
+        <div class="card"><div class="card-title">Monthly Target (Units) per Stockist</div><div class="chart-wrap"><canvas id="stkTargetChart"></canvas></div></div>
+      </div>
+      <div class="grid2" style="margin-bottom:22px">
+        <div class="card"><div class="card-title">Credit Limit vs Monthly Target <span style="font-size:.72rem;font-weight:400;color:#718096">(bubble = distributors)</span></div><div class="chart-wrap"><canvas id="stkCreditChart"></canvas></div></div>
+        <div class="card"><div class="card-title">Distributors per Stockist</div><div class="chart-wrap"><canvas id="stkDistChart"></canvas></div></div>
+      </div>
+      <div class="card" style="margin-bottom:22px">
+        <div class="card-title">Stockist Directory</div>
+        <div class="tw"><table><thead><tr>
+          <th>ID</th><th>Stockist Name</th><th>Owner</th><th>Zone</th><th>City / State</th>
+          <th>Monthly Target</th><th>Credit Limit (₹L)</th><th>Distributors</th><th>Status</th>
+        </tr></thead><tbody id="stk-tbody"></tbody></table></div>
+      </div>
+      <div class="net-ai-banner">
+        <div class="net-ai-icon">🧠</div>
+        <div><h3>Stockist AI Analysis</h3><p>Gemini chain-of-thought analysis of your 5 zone stockists — performance gaps, credit mismatches, and 30-day strategy.</p></div>
+        <button class="btn btn-blue" id="stkAiBtn" onclick="runNetworkAnalysis('stockist')">&#x2728; Analyze Stockists</button>
+      </div>
+      <div class="net-ai-loading" id="net-ai-loading-stockist"><div class="pulse-ring"></div><p style="color:#718096;font-size:.85rem">Gemini is analyzing your stockist network…</p></div>
+      <div class="net-ai-results" id="net-ai-results-stockist"></div>
+    </div>
+  </div>
+  <div id="sub-pane-distributors" class="sub-pane d-none">
+    <div class="net-loading" id="dst-loading">
+      <div class="spinner-icon">↻</div>
+      <h2 class="loading-title">Loading Distributors…</h2>
+    </div>
+    <div id="dst-content" class="d-none">
+      <div class="net-stat-strip" id="dst-stats"></div>
+      <div class="grid2">
+        <div class="card"><div class="card-title">Distributors Grouped by Stockist Zone</div><div class="chart-wrap"><canvas id="dstByStockistChart"></canvas></div></div>
+        <div class="card"><div class="card-title">Monthly Target per Distributor</div><div class="chart-wrap" style="height:260px"><canvas id="dstTargetChart"></canvas></div></div>
+      </div>
+      <div class="grid2" style="margin-bottom:22px">
+        <div class="card"><div class="card-title">Retailers per Distributor</div><div class="chart-wrap"><canvas id="dstRetailersChart"></canvas></div></div>
+        <div class="card"><div class="card-title">Credit Limit vs Monthly Target <span style="font-size:.72rem;font-weight:400;color:#718096">(scatter)</span></div><div class="chart-wrap"><canvas id="dstScatterChart"></canvas></div></div>
+      </div>
+      <div class="card" style="margin-bottom:22px">
+        <div class="card-title">🕸️ Stockist Zone Radar — Avg KPI Comparison</div>
+        <div class="chart-wrap" style="height:300px"><canvas id="dstRadarChart"></canvas></div>
+      </div>
+      <div class="card" style="margin-bottom:22px">
+        <div class="card-title">Distributor Directory</div>
+        <div class="toolbar">
+          <input type="search" id="dst-search" placeholder="Search distributor or city…" oninput="renderTableDistributors()"/>
+          <select id="dst-zone-filter" onchange="renderTableDistributors()">
+            <option value="">All Zones</option>
+            <option>North</option><option>West</option><option>South</option><option>East</option><option>Central</option>
+          </select>
+          <span class="count" id="dst-row-count"></span>
+        </div>
+        <div class="tw"><table><thead><tr>
+          <th>ID</th><th>Distributor</th><th>Owner</th><th>Zone</th><th>City / State</th>
+          <th>Monthly Target</th><th>Credit (₹L)</th><th>Retailers</th><th>Status</th>
+        </tr></thead><tbody id="dst-tbody"></tbody></table></div>
+      </div>
+      <div class="net-ai-banner">
+        <div class="net-ai-icon">🧠</div>
+        <div><h3>Distributor AI Analysis</h3><p>Gemini analysis of all 15 distributors — zone coverage, target gaps, retailer reach, and strategic recommendations.</p></div>
+        <button class="btn btn-blue" id="dstAiBtn" onclick="runNetworkAnalysis('distributor')">&#x2728; Analyze Distributors</button>
+      </div>
+      <div class="net-ai-loading" id="net-ai-loading-distributor"><div class="pulse-ring"></div><p style="color:#718096;font-size:.85rem">Gemini is analyzing your distributor network…</p></div>
+      <div class="net-ai-results" id="net-ai-results-distributor"></div>
+    </div>
+  </div>
+  <div id="sub-pane-retailers" class="sub-pane d-none">
+    <div class="net-loading" id="ret-loading">
+      <div class="spinner-icon">↻</div>
+      <h2 class="loading-title">Loading Retailers…</h2>
+    </div>
+    <div id="ret-content" class="d-none">
+      <div class="net-stat-strip" id="ret-stats"></div>
+      <div class="grid3">
+        <div class="card"><div class="card-title">Tier Distribution</div><div class="chart-wrap"><canvas id="retTierChart"></canvas></div></div>
+        <div class="card"><div class="card-title">Monthly Purchases (units) Histogram</div><div class="chart-wrap"><canvas id="retPurchaseChart"></canvas></div></div>
+        <div class="card"><div class="card-title">Loyalty Points Distribution</div><div class="chart-wrap"><canvas id="retPointsChart"></canvas></div></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="card-title">Outstanding Amount by Distributor (₹)</div><div class="chart-wrap" style="height:260px"><canvas id="retOutstandingChart"></canvas></div></div>
+        <div class="card"><div class="card-title">Mechanics Linked per Retailer (Top 20)</div><div class="chart-wrap"><canvas id="retMechChart"></canvas></div></div>
+      </div>
+      <div class="grid2" style="margin-bottom:22px">
+        <div class="card"><div class="card-title">Monthly Purchases by State</div><div class="chart-wrap"><canvas id="retStateChart"></canvas></div></div>
+        <div class="card"><div class="card-title">Loyalty Points vs Monthly Purchases <span style="font-size:.72rem;font-weight:400;color:#718096">(scatter by tier)</span></div><div class="chart-wrap"><canvas id="retScatterChart"></canvas></div></div>
+      </div>
+      <div class="card" style="margin-bottom:22px">
+        <div class="card-title">Retailer Directory</div>
+        <div class="toolbar">
+          <input type="search" id="ret-search" placeholder="Search shop or city…" oninput="renderTableRetailers()"/>
+          <select id="ret-tier-filter" onchange="renderTableRetailers()">
+            <option value="">All Tiers</option><option>Gold</option><option>Silver</option><option>Bronze</option>
+          </select>
+          <select id="ret-dist-filter" onchange="renderTableRetailers()" style="width:170px">
+            <option value="">All Distributors</option>
+          </select>
+          <span class="count" id="ret-row-count"></span>
+        </div>
+        <div class="tw"><table><thead><tr>
+          <th>#</th><th>Shop Name</th><th>Owner</th><th>City / State</th><th>Distributor</th>
+          <th>Tier</th><th>Monthly Purchases</th><th>Loyalty Points</th><th>Outstanding (₹)</th><th>Status</th>
+        </tr></thead><tbody id="ret-tbody"></tbody></table></div>
+      </div>
+      <div class="net-ai-banner">
+        <div class="net-ai-icon">🧠</div>
+        <div><h3>Retailer AI Analysis</h3><p>Gemini analysis of all 45 retailers — tier performance, outstanding risks, mechanic engagement, and growth opportunities.</p></div>
+        <button class="btn btn-blue" id="retAiBtn" onclick="runNetworkAnalysis('retailer')">&#x2728; Analyze Retailers</button>
+      </div>
+      <div class="net-ai-loading" id="net-ai-loading-retailer"><div class="pulse-ring"></div><p style="color:#718096;font-size:.85rem">Gemini is analyzing your retailer network…</p></div>
+      <div class="net-ai-results" id="net-ai-results-retailer"></div>
+    </div>
+  </div>
+  <div id="sub-pane-network" class="sub-pane d-none"></div>
 </div>
 
 <!-- ══ AI INSIGHTS TAB ════════════════════════════════════════════════════ -->
@@ -473,36 +763,65 @@
   <div class="ai-banner">
     <div class="ai-logo">🤖</div>
     <div>
-      <h2>Gemini AI Sales Intelligence</h2>
-      <p>Chain-of-thought analysis using your real mechanic data — sales forecasting, PPC planning, stock supply recommendations and retention strategies powered by Gemini 2.5 Flash.</p>
+      <h2>NBC Aftermarket Sales Intelligence</h2>
+      <p>Full-channel AI analysis — mechanics, retailers, distributors &amp; stockists. Sales forecasting, PPC planning, territory opportunities and stock recommendations powered by Gemini.</p>
     </div>
     <button class="btn btn-purple" id="analyzeBtn" onclick="runAnalysis()">
-      ✨ Analyze Now
+      ✨ Analyze All Channels
     </button>
   </div>
 
   <div id="ai-placeholder" class="empty">
     <div class="ico">🧠</div>
-    <h2>AI analysis not run yet</h2>
-    <p>Click <strong>✨ Analyze Now</strong> above to generate sales forecasts, PPC plans, and more.</p>
+    <h2>Sales intelligence not generated yet</h2>
+    <p>Click <strong>✨ Analyze All Channels</strong> to generate bearing sales forecasts, PPC campaign plans, territory opportunities and stock recommendations across all 4 network layers.</p>
   </div>
 
   <div id="ai-loading" class="ai-loading d-none">
     <div class="pulse-ring"></div>
-    <h3>Gemini is thinking…</h3>
-    <p>Running chain-of-thought sales analysis</p>
+    <h3>Gemini is analyzing your full network…</h3>
+    <p>Reading all 4 channels: Mechanics · Retailers · Distributors · Stockists</p>
     <ul class="ai-steps" id="ai-steps">
-      <li class="done"><span class="step-dot"></span> Reading mechanic CSV data</li>
-      <li class="active"><span class="step-dot"></span> Aggregating city & tier stats</li>
+      <li class="done"><span class="step-dot"></span> Loading mechanics &amp; network CSV data</li>
+      <li class="active"><span class="step-dot"></span> Computing zone &amp; channel aggregates</li>
       <li><span class="step-dot"></span> Building chain-of-thought prompt</li>
-      <li><span class="step-dot"></span> Calling Gemini 2.5 Flash Preview</li>
-      <li><span class="step-dot"></span> Parsing + rendering AI response</li>
+      <li><span class="step-dot"></span> Calling Gemini for sales intelligence</li>
+      <li><span class="step-dot"></span> Rendering insights &amp; charts</li>
     </ul>
   </div>
 
   <div id="ai-results" class="d-none">
     <!-- Thinking summary -->
     <div class="thinking-box" id="ai-thinking"></div>
+
+    <!-- Pipeline Health KPIs -->
+    <div class="section-hdr">
+      <h3>🏭 Sales Pipeline Health</h3>
+      <div class="badge">All 4 Channels</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="pipeline-strip" id="pipeline-strip">
+      <div class="pipeline-kpi kpi-target">
+        <div class="pkval" id="kpi-target">—</div>
+        <div class="pklbl">Monthly Target (Units)</div>
+        <div class="pksub" id="kpi-target-sub">Across all stockists</div>
+      </div>
+      <div class="pipeline-kpi kpi-achieve">
+        <div class="pkval" id="kpi-achieve">—</div>
+        <div class="pklbl">Est. Achievement %</div>
+        <div class="pksub" id="kpi-achieve-sub">vs monthly targets</div>
+      </div>
+      <div class="pipeline-kpi kpi-demand">
+        <div class="pkval" id="kpi-demand">—</div>
+        <div class="pklbl">Mechanic Demand Signal</div>
+        <div class="pksub" id="kpi-demand-sub">Photo submission activity</div>
+      </div>
+      <div class="pipeline-kpi kpi-zone">
+        <div class="pkval" id="kpi-zone">—</div>
+        <div class="pklbl">Top Performing Zone</div>
+        <div class="pksub" id="kpi-zone-sub" style="color:#fc8181"></div>
+      </div>
+    </div>
 
     <!-- Key Insights -->
     <div class="section-hdr">
@@ -512,53 +831,60 @@
     </div>
     <div class="insights-grid" id="insights-grid"></div>
 
-    <!-- 30-Day Forecast -->
+    <!-- 30-Day Sales Forecast -->
     <div class="section-hdr">
-      <h3>📈 30-Day Sales Forecast</h3>
-      <div class="badge">City-Level Projections</div>
+      <h3>📈 30-Day Bearing Sales Forecast</h3>
+      <div class="badge">Zone-Level Projections</div>
       <div class="section-line"></div>
     </div>
-    <div class="forecast-grid">
-      <div class="card"><div class="card-title">Projected Photo Submissions</div><div class="chart-wrap"><canvas id="forecastChart"></canvas></div></div>
+    <div class="zone-forecast-grid">
+      <div class="card"><div class="card-title">Projected Units by Zone</div><div class="chart-wrap"><canvas id="forecastChart"></canvas></div></div>
       <div class="card table-card">
         <div class="tw"><table><thead><tr>
-          <th>City</th><th>State</th><th>Mechanics</th><th>Cur. Photos</th>
-          <th>+30d Photos</th><th>Growth</th><th>Confidence</th>
+          <th>Zone</th><th>Current (Units)</th><th>+30d Projected</th><th>Growth</th><th>Demand Signal</th><th>Confidence</th>
         </tr></thead><tbody id="forecast-tbody"></tbody></table></div>
       </div>
     </div>
 
-    <!-- PPC Plan -->
+    <!-- Channel Performance -->
     <div class="section-hdr">
-      <h3>📢 PPC Campaign Plan</h3>
+      <h3>📊 Channel Performance Scorecard</h3>
+      <div class="badge">4-Channel Analysis</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="channel-strip" id="channel-strip"></div>
+
+    <!-- PPC Campaign Plans -->
+    <div class="section-hdr">
+      <h3>📢 PPC Campaign Plans</h3>
       <div class="badge" id="ppc-count"></div>
       <div class="section-line"></div>
     </div>
-    <div class="ppc-grid" id="ppc-grid"></div>
+    <div class="ppc-campaign-grid" id="ppc-grid"></div>
 
-    <!-- Stock Supply -->
+    <!-- Territory Opportunities -->
     <div class="section-hdr">
-      <h3>📦 Stock Supply Recommendations</h3>
+      <h3>🗺️ Territory Opportunities</h3>
+      <div class="badge" id="territory-count"></div>
+      <div class="section-line"></div>
+    </div>
+    <div class="territory-grid" id="territory-grid"></div>
+
+    <!-- Stock Recommendations -->
+    <div class="section-hdr">
+      <h3>📦 Stock Recommendations</h3>
       <div class="badge" id="stock-count"></div>
       <div class="section-line"></div>
     </div>
-    <div class="stock-grid" id="stock-grid"></div>
+    <div class="stock-grid2" id="stock-grid"></div>
 
-    <!-- Retention -->
+    <!-- Top Performers -->
     <div class="section-hdr">
-      <h3>🎯 Mechanic Retention Strategies</h3>
-      <div class="badge">Tier Progression Playbook</div>
+      <h3>🏆 Top Performers — All Channels</h3>
+      <div class="badge" id="perf-count"></div>
       <div class="section-line"></div>
     </div>
-    <div class="retention-grid" id="retention-grid"></div>
-
-    <!-- Untapped Cities -->
-    <div class="section-hdr">
-      <h3>🗺️ Untapped Market Opportunities</h3>
-      <div class="badge" id="untapped-count"></div>
-      <div class="section-line"></div>
-    </div>
-    <div class="untapped-grid" id="untapped-grid"></div>
+    <div class="top-perf-list" id="top-performers"></div>
 
     <!-- Executive Summary -->
     <div class="section-hdr">
@@ -566,7 +892,7 @@
       <div class="section-line"></div>
     </div>
     <div class="exec-summary">
-      <h3>AI Generated Summary</h3>
+      <h3>AI-Generated Sales Intelligence Summary</h3>
       <p id="exec-summary-text"></p>
     </div>
   </div>
@@ -1553,7 +1879,7 @@
   ═══════════════════════════════════════════════ */
   function renderDashboard() {
     document.getElementById('dash-loading').style.display = 'none';
-    document.getElementById('dash-content').style.display = 'block';
+    document.getElementById('dash-content').classList.toggle('d-none', currentSubTab !== 'mechanics');
 
     // Stat cards
     const totalPts    = allMechanics.reduce((s, m) => s + m.points, 0);
@@ -1569,6 +1895,7 @@
 
     renderCharts();
     renderTable();
+    document.getElementById('dash-subtabs').classList.remove('d-none');
   }
 
   function renderCharts() {
@@ -1760,116 +2087,798 @@
     // Thinking summary
     document.getElementById('ai-thinking').innerHTML = `<p>${a.thinking_summary || ''}</p>`;
 
-    // Insights
-    document.getElementById('insight-count').textContent = `${a.insights.length} insights`;
-    document.getElementById('insights-grid').innerHTML = a.insights.map(ins => `
-      <div class="insight-card ${ins.impact}">
+    // ── Pipeline Health KPIs ──────────────────────────────────────────────
+    const ph = a.pipeline_health || {};
+    document.getElementById('kpi-target').textContent = ph.total_target_units_monthly
+      ? Number(ph.total_target_units_monthly).toLocaleString() : '—';
+    document.getElementById('kpi-target-sub').textContent = 'Across all stockists';
+    document.getElementById('kpi-achieve').textContent = ph.achievement_pct != null
+      ? `${ph.achievement_pct}%` : '—';
+    document.getElementById('kpi-achieve-sub').textContent = ph.estimated_actual_units_monthly
+      ? `~${Number(ph.estimated_actual_units_monthly).toLocaleString()} actual units` : '';
+    document.getElementById('kpi-demand').textContent = ph.mechanic_demand_signal || '—';
+    document.getElementById('kpi-demand-sub').textContent = ph.mechanic_engagement_pct != null
+      ? `${ph.mechanic_engagement_pct}% mechanics active` : '';
+    document.getElementById('kpi-zone').textContent = ph.top_zone || '—';
+    document.getElementById('kpi-zone-sub').textContent = ph.weakest_zone
+      ? `⚠ Weakest: ${ph.weakest_zone}` : '';
+
+    // ── Insights ──────────────────────────────────────────────────────────
+    const ins = a.insights || [];
+    document.getElementById('insight-count').textContent = `${ins.length} insights`;
+    document.getElementById('insights-grid').innerHTML = ins.map(i => `
+      <div class="insight-card ${i.impact}">
         <div class="insight-header">
-          <span class="insight-icon">${ins.icon||'💡'}</span>
-          <span class="insight-title">${ins.title}</span>
-          <span class="impact-badge impact-${ins.impact}">${ins.impact}</span>
+          <span class="insight-icon">${i.icon || '💡'}</span>
+          <span class="insight-title">${i.title}</span>
+          <span class="impact-badge impact-${i.impact}">${i.impact}</span>
         </div>
-        <p class="insight-detail">${ins.detail}</p>
-        <div class="insight-action">${ins.action}</div>
+        <p class="insight-detail">${i.detail}</p>
+        <div class="insight-action">${i.action}</div>
       </div>
     `).join('');
 
-    // Forecast chart
-    const topF = a.forecast.slice(0, 8);
+    // ── Sales Forecast chart (by zone) ────────────────────────────────────
+    const sf = a.sales_forecast || [];
     if (forecastChart) forecastChart.destroy();
     forecastChart = new Chart(document.getElementById('forecastChart'), {
       type: 'bar',
       data: {
-        labels: topF.map(f => f.city),
+        labels: sf.map(f => f.zone),
         datasets: [
-          { label: 'Current Photos', data: topF.map(f => f.current_photos_total), backgroundColor: '#4299e1', borderRadius: 4 },
-          { label: '+30d Projected', data: topF.map(f => f.projected_photos_30d), backgroundColor: '#68d391', borderRadius: 4 }
+          { label: 'Current (Units)', data: sf.map(f => f.current_monthly_units), backgroundColor: '#4299e1', borderRadius: 4 },
+          { label: '+30d Projected', data: sf.map(f => f.projected_30d_units), backgroundColor: '#9f7aea', borderRadius: 4 }
         ]
       },
       options: {
-        plugins: { legend: { labels: { color:'#a0aec0', font:{size:11} } } },
+        plugins: { legend: { labels: { color: '#a0aec0', font: { size: 11 } } } },
         scales: {
-          x: { ticks:{color:'#a0aec0',font:{size:10}}, grid:{color:'#2d3748'} },
-          y: { ticks:{color:'#a0aec0'}, grid:{color:'#2d3748'} }
+          x: { ticks: { color: '#a0aec0', font: { size: 10 } }, grid: { color: '#2d3748' } },
+          y: { ticks: { color: '#a0aec0' }, grid: { color: '#2d3748' } }
         }
       }
     });
-
-    // Forecast table
-    document.getElementById('forecast-tbody').innerHTML = topF.map(f => `
+    document.getElementById('forecast-tbody').innerHTML = sf.map(f => `
       <tr>
-        <td style="font-weight:600">${f.city}</td>
-        <td style="color:#718096">${f.state}</td>
-        <td>${f.current_mechanics}</td>
-        <td>${f.current_photos_total}</td>
-        <td style="color:#68d391;font-weight:700">${f.projected_photos_30d}</td>
+        <td style="font-weight:700;color:#9f7aea">${f.zone}</td>
+        <td>${Number(f.current_monthly_units).toLocaleString()}</td>
+        <td style="color:#68d391;font-weight:700">${Number(f.projected_30d_units).toLocaleString()}</td>
         <td style="color:${f.growth_pct>=20?'#68d391':f.growth_pct>=10?'#f6ad55':'#a0aec0'};font-weight:700">+${f.growth_pct}%</td>
+        <td><span class="demand-pill demand-${f.demand_signal}">${f.demand_signal}</span></td>
         <td><span class="tier-badge ${f.confidence==='High'?'tier-Gold':f.confidence==='Medium'?'tier-Silver':'tier-Bronze'}">${f.confidence}</span></td>
       </tr>
     `).join('');
 
-    // PPC
-    document.getElementById('ppc-count').textContent = `${a.ppc.length} cities`;
-    document.getElementById('ppc-grid').innerHTML = a.ppc.map(p => `
-      <div class="ppc-card">
-        <div class="ppc-header">
-          <div><div class="ppc-city">${p.city}</div><div class="ppc-state">${p.state}</div></div>
-          <span class="platform-badge platform-${p.platform.split(' ')[0]}">${p.platform}</span>
-        </div>
-        <div class="ppc-budget">₹${Number(p.budget_inr).toLocaleString()} <span>/month</span></div>
-        <div class="ppc-row"><label>Target Audience</label><span>${p.target_audience}</span></div>
-        <div class="ppc-row"><label>Best Time</label><span>${p.best_time}</span></div>
-        <div class="ppc-row"><label>Expected Reach</label><span style="color:#68d391;font-weight:700">${Number(p.expected_reach).toLocaleString()}</span></div>
-        <div class="ppc-row"><label>Expected Leads</label><span style="color:#f6ad55;font-weight:700">${Number(p.expected_leads).toLocaleString()}</span></div>
-        <div class="ppc-keywords">${p.keywords.map(k => `<span class="kw">${k}</span>`).join('')}</div>
-      </div>
-    `).join('');
-
-    // Stock
-    document.getElementById('stock-count').textContent = `${a.stock.length} cities`;
-    document.getElementById('stock-grid').innerHTML = a.stock.map(s => `
-      <div class="stock-card stock-pri-${s.priority}">
-        <div class="stock-header">
-          <div><div class="stock-city">${s.city}</div><div class="stock-state">${s.state}</div></div>
-          <span class="pri-${s.priority}">${s.priority}</span>
-        </div>
-        <div class="stock-units">${Number(s.recommended_stock_units).toLocaleString()} <span>units</span></div>
-        <div class="stock-row">👥 ${s.mechanics_count} mechanics &nbsp;|&nbsp; 📸 ${s.photos_submitted} photos</div>
-        <div class="skus">${s.top_skus.map(k => `<span class="sku">${k}</span>`).join('')}</div>
-        <div class="stock-rationale">${s.rationale}</div>
-      </div>
-    `).join('');
-
-    // Retention
-    document.getElementById('retention-grid').innerHTML = a.retention.map(r => `
-      <div class="ret-card">
-        <div class="ret-header">
-          <span class="ret-arrow">↑</span>
-          <div>
-            <div class="ret-tiers"><span class="tier-badge tier-${r.from_tier}">${r.from_tier}</span> → <span class="tier-badge tier-${r.to_tier}">${r.to_tier}</span></div>
-            <div class="ret-count">${r.mechanics_count} mechanics in this transition</div>
+    // ── Channel Performance Scorecards ────────────────────────────────────
+    const CP_CFG = {
+      Stockists:    { cls: 'ch-stk', icon: '🏭', color: '#9f7aea' },
+      Distributors: { cls: 'ch-dst', icon: '🚛', color: '#63b3ed' },
+      Retailers:    { cls: 'ch-ret', icon: '🛍️', color: '#68d391' },
+      Mechanics:    { cls: 'ch-mec', icon: '🔧', color: '#f6ad55' }
+    };
+    const cp = a.channel_performance || [];
+    const R = 33, CIRC = 2 * Math.PI * R;
+    document.getElementById('channel-strip').innerHTML = cp.map(ch => {
+      const cfg = CP_CFG[ch.channel] || { cls:'', icon:'📊', color:'#9f7aea' };
+      const pct = Math.min(Math.max(ch.score || 0, 0), 100);
+      const dash = `${(pct / 100) * CIRC} ${CIRC}`;
+      return `
+        <div class="channel-card ${cfg.cls}" style="--ch-color:${cfg.color}">
+          <div class="ch-icon">${cfg.icon}</div>
+          <div class="ch-name">${ch.channel}</div>
+          <div class="ch-score-ring">
+            <svg viewBox="0 0 76 76">
+              <circle class="ring-bg" cx="38" cy="38" r="${R}"/>
+              <circle class="ring-fg" cx="38" cy="38" r="${R}" stroke-dasharray="${dash}" stroke-dashoffset="0"/>
+            </svg>
+            <div class="ch-score-val">${pct}</div>
           </div>
+          <div class="ch-label">${ch.strength || ''}</div>
+          <div class="ch-gap">${ch.gap || ''}</div>
+          <div class="ch-action">${ch.action || ''}</div>
         </div>
-        <div class="ret-pts">${Number(r.avg_pts_needed).toLocaleString()} <span>avg pts needed</span></div>
-        <div class="ret-strategy">${r.strategy}</div>
-        <div class="ret-incentive">${r.incentive}</div>
-        <div class="ret-timeline">⏱️ ${r.timeline}</div>
+      `;
+    }).join('');
+
+    // ── PPC Campaigns ─────────────────────────────────────────────────────
+    const ppc = a.ppc_campaigns || [];
+    document.getElementById('ppc-count').textContent = `${ppc.length} campaigns`;
+    document.getElementById('ppc-grid').innerHTML = ppc.map(p => `
+      <div class="ppc-campaign-card" data-pri="${p.priority}">
+        <div class="ppc-cn">${p.campaign_name}</div>
+        <div class="ppc-obj">${p.objective}</div>
+        <div class="ppc-meta">
+          <div class="ppc-budget2">₹${Number(p.budget_inr).toLocaleString()} <span>/mo</span></div>
+          <span class="platform-badge platform-${(p.platform||'').split(' ')[0]}">${p.platform}</span>
+        </div>
+        <div class="ppc-info"><label>Target</label><span>${p.target_audience}</span></div>
+        <div class="ppc-info"><label>Channel</label><span>${p.target_channel}</span></div>
+        <div class="ppc-info"><label>Region</label><span>${p.region}</span></div>
+        <div class="ppc-stats2">
+          <div class="ppc-st"><div class="sv">${Number(p.expected_impressions||0).toLocaleString()}</div><div class="sl">Impressions</div></div>
+          <div class="ppc-st"><div class="sv" style="color:#68d391">${Number(p.expected_conversions||0).toLocaleString()}</div><div class="sl">Conversions</div></div>
+        </div>
+        <div class="ppc-kws2">${(p.keywords||[]).map(k => `<span class="kw">${k}</span>`).join('')}</div>
       </div>
     `).join('');
 
-    // Untapped cities
-    document.getElementById('untapped-count').textContent = `${a.untapped_cities.length} opportunities`;
-    document.getElementById('untapped-grid').innerHTML = a.untapped_cities.map(u => `
-      <div class="untapped-card">
-        <div class="untapped-city">📍 ${u.city}</div>
-        <div class="untapped-state">${u.state}</div>
-        <div class="untapped-why">${u.why}</div>
-        <div class="untapped-action">${u.suggested_action}</div>
+    // ── Territory Opportunities ───────────────────────────────────────────
+    const terr = a.territory_opportunities || [];
+    document.getElementById('territory-count').textContent = `${terr.length} opportunities`;
+    document.getElementById('territory-grid').innerHTML = terr.map(t => `
+      <div class="territory-card" data-pri="${t.priority}">
+        <div class="tc-zone">${t.zone} Zone</div>
+        <div class="tc-city">📍 ${t.city}</div>
+        <div class="tc-state">${t.state}</div>
+        <span class="tc-type">${t.opportunity_type}</span>
+        <div class="tc-units">${Number(t.potential_units||0).toLocaleString()} <span>potential units/mo</span></div>
+        <div class="tc-action">→ ${t.action}</div>
       </div>
     `).join('');
 
-    // Executive summary
+    // ── Stock Recommendations ─────────────────────────────────────────────
+    const stocks = a.stock_recommendations || [];
+    document.getElementById('stock-count').textContent = `${stocks.length} locations`;
+    document.getElementById('stock-grid').innerHTML = stocks.map(s => `
+      <div class="stock2-card" data-urg="${s.urgency}">
+        <div class="sg-top">
+          <div><div class="sg-city">${s.city}</div><div class="sg-zone">${s.zone} Zone</div></div>
+          <span class="sg-urg urg-${s.urgency}">${s.urgency}</span>
+        </div>
+        <div class="sg-units">${Number(s.recommended_units||0).toLocaleString()} <span>units recommended</span></div>
+        <div class="sg-skus">${(s.sku_focus||[]).map(k => `<span class="sku">${k}</span>`).join('')}</div>
+        <div style="font-size:0.73rem;color:#a0aec0;margin-bottom:4px">🔧 ${s.mechanic_activity || ''}</div>
+        <div class="sg-rationale">${s.rationale}</div>
+      </div>
+    `).join('');
+
+    // ── Top Performers ────────────────────────────────────────────────────
+    const perfs = a.top_performers || [];
+    document.getElementById('perf-count').textContent = `${perfs.length} highlighted`;
+    document.getElementById('top-performers').innerHTML = perfs.map(p => `
+      <div class="perf-row">
+        <div class="perf-rank">${p.rank || '★'}</div>
+        <div class="perf-info">
+          <div class="perf-name">${p.name}</div>
+          <div class="perf-meta">${p.city} &nbsp;·&nbsp; <span class="perf-badge pb-${p.entity_type}">${p.entity_type}</span></div>
+          <div style="font-size:0.72rem;color:#718096;margin-top:3px">${p.recognition || ''}</div>
+        </div>
+        <div class="perf-val">
+          <div class="perf-vn">${p.metric_value}</div>
+          <div class="perf-vl">${p.metric_label}</div>
+        </div>
+      </div>
+    `).join('');
+
+    // ── Executive Summary ─────────────────────────────────────────────────
     document.getElementById('exec-summary-text').textContent = a.summary || '';
+  }
+
+  /* ═══════════════════════════════════════════════
+     NETWORK ENTITY TABS (Stockists / Distributors / Retailers)
+  ═══════════════════════════════════════════════ */
+  let networkData = { stockists:[], distributors:[], retailers:[], hierarchy:[] };
+  let networkLoaded = false;
+  let currentSubTab = 'mechanics';
+  let stkZoneChart, stkTargetChart, stkCreditChart, stkDistChart;
+  let dstByStockistChart, dstTargetChart, dstRetailersChart, dstScatterChart, dstRadarChart;
+  let retTierChart, retPurchaseChart, retPointsChart, retOutstandingChart, retMechChart, retStateChart, retScatterChart;
+
+  function switchSubTab(name, btn) {
+    currentSubTab = name;
+    document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    // Reset all — hide mechanics content and all sub-panes
+    document.getElementById('dash-content')?.classList.add('d-none');
+    ['stockists','distributors','retailers','network'].forEach(n =>
+      document.getElementById('sub-pane-' + n)?.classList.add('d-none')
+    );
+    // Show only the active selection
+    if (name === 'mechanics') {
+      document.getElementById('dash-content')?.classList.remove('d-none');
+    } else {
+      document.getElementById('sub-pane-' + name)?.classList.remove('d-none');
+    }
+    if (name !== 'mechanics') loadNetworkData();
+    if (name === 'network') renderNetworkTree();
+  }
+
+  function computeNetworkLoyalty() {
+    const H = networkData.hierarchy;
+    const mechMap = {};
+    allMechanics.forEach(m => { mechMap[String(m.phone)] = m; });
+    // MLM full rollup: every level earns the SAME pts as all mechanics below it
+    const stk = {}, dst = {}, ret = {}, mechCount = { stk:{}, dst:{}, ret:{} };
+    H.forEach(row => {
+      const m = mechMap[String(row.mechanic_phone)];
+      if (!m) return;
+      const pts = Number(m.points || 0);
+      ret[row.retailer_id]    = (ret[row.retailer_id]    || 0) + pts;
+      dst[row.distributor_id] = (dst[row.distributor_id] || 0) + pts;
+      stk[row.stockist_id]    = (stk[row.stockist_id]    || 0) + pts;
+      mechCount.ret[row.retailer_id]    = (mechCount.ret[row.retailer_id]    || 0) + 1;
+      mechCount.dst[row.distributor_id] = (mechCount.dst[row.distributor_id] || 0) + 1;
+      mechCount.stk[row.stockist_id]    = (mechCount.stk[row.stockist_id]    || 0) + 1;
+    });
+    return { stockists: stk, distributors: dst, retailers: ret, mechCount };
+  }
+
+  let networkTreeRendered = false;
+  function renderNetworkTree() {
+    if (networkTreeRendered) return;
+    if (!networkLoaded) { setTimeout(renderNetworkTree, 300); return; }
+    networkTreeRendered = true;
+
+    const pane = document.getElementById('sub-pane-network');
+    const S = networkData.stockists;
+    const D = networkData.distributors;
+    const R = networkData.retailers;
+    const H = networkData.hierarchy;
+    const loyalty = computeNetworkLoyalty();
+    const mechMap = {};
+    allMechanics.forEach(m => { mechMap[String(m.phone)] = m; });
+
+    // Build mechanic list per retailer (unique per phone)
+    const retMechs = {};
+    H.forEach(row => {
+      if (!retMechs[row.retailer_id]) retMechs[row.retailer_id] = new Map();
+      const m = mechMap[String(row.mechanic_phone)];
+      if (m) retMechs[row.retailer_id].set(m.phone, m);
+    });
+    const totalMechs = Object.values(retMechs).reduce((s, m) => s + m.size, 0);
+    const tierIcon = t => ({ Diamond:'💠', Gold:'🥇', Silver:'🥈', Bronze:'🥉' })[t] || '🔧';
+
+    let html = `
+      <div class="mlm-note">
+        <strong>⭐ MLM Loyalty Rules:</strong> Every ₹1000 bearing purchase = 10 pts for the mechanic.
+        Retailer earns the <strong>full sum</strong> of all mechanics’ pts below them.
+        Distributor earns the <strong>full sum</strong> of all retailers’ pts below them.
+        Stockist earns the <strong>full sum</strong> of all distributors’ pts below them.
+        Points flow upward 100% — every level benefits from its entire downline.
+      </div>
+      <div class="tree-toolbar">
+        <input class="tree-search" id="tree-search" type="search" placeholder="🔍 Search mechanic, retailer, distributor, city, tier…" oninput="filterTree(this.value)">
+        <span class="tree-count-badge" id="tree-count">${totalMechs} mechanics across ${S.length} zones</span>
+      </div>
+      <div class="tree-legend">
+        <span>🏭 <span style="color:#63b3ed">Stockist (Zone hub)</span></span>
+        <span>🚛 <span style="color:#68d391">Distributor</span></span>
+        <span>🛍️ <span style="color:#f6ad55">Retailer</span></span>
+        <span>🔧 <span style="color:#cbd5e0">Mechanic</span></span>
+        <span><span style="color:#f6ad55">⭐ Gold = network (upline) pts</span></span>
+        <span><span style="color:#63b3ed">⭐ Blue = direct mechanic pts</span></span>
+      </div>
+      <div class="net-tree" id="tree-root">
+        <div class="tree-node" id="tree-node-root">
+          <div class="tree-row root-row">
+            <span class="tree-toggle" onclick="toggleTreeNode(this)">▼</span>
+            <span class="tree-emoji">⚙️</span>
+            <span class="tree-label">NBC Bearings — Full Network</span>
+            <span class="tree-count">${S.length} zones · ${D.length} distributors · ${R.length} retailers · ${totalMechs} mechanics</span>
+          </div>
+          <div class="tree-children">`;
+
+    S.forEach(stk => {
+      const stkPts   = loyalty.stockists[stk.stockist_id] || 0;
+      const stkMechN = loyalty.mechCount.stk[stk.stockist_id] || 0;
+      const stkDists = D.filter(d => d.stockist_id === stk.stockist_id);
+      const stkRetN  = stkDists.reduce((s,d) => s + R.filter(r=>r.distributor_id===d.distributor_id).length, 0);
+      html += `<div class="tree-node" data-search="${stk.name.toLowerCase()} ${stk.city.toLowerCase()} ${stk.zone.toLowerCase()} ${stk.stockist_id.toLowerCase()}">
+          <div class="tree-row stk-row">
+            <span class="tree-toggle" onclick="toggleTreeNode(this)">▼</span>
+            <span class="tree-emoji">🏭</span>
+            <span class="tree-label stk">${stk.name}</span>
+            <span class="tree-meta">${stk.zone} · ${stk.city}</span>
+            <span class="tree-count">${stkDists.length} dist · ${stkRetN} ret · ${stkMechN} mech</span>
+            <span class="tree-pts network">⭐ ${stkPts.toLocaleString()} pts</span>
+          </div>
+          <div class="tree-children">`;
+
+      stkDists.forEach(dist => {
+        const distPts   = loyalty.distributors[dist.distributor_id] || 0;
+        const distMechN = loyalty.mechCount.dst[dist.distributor_id] || 0;
+        const distRets  = R.filter(r => r.distributor_id === dist.distributor_id);
+        html += `<div class="tree-node" data-search="${dist.name.toLowerCase()} ${dist.city.toLowerCase()} ${dist.distributor_id.toLowerCase()}">
+          <div class="tree-row dst-row">
+            <span class="tree-toggle" onclick="toggleTreeNode(this)">▼</span>
+            <span class="tree-emoji">🚛</span>
+            <span class="tree-label dst">${dist.name}</span>
+            <span class="tree-meta">${dist.city}</span>
+            <span class="tree-count">${distRets.length} retailers · ${distMechN} mechs</span>
+            <span class="tree-pts network">⭐ ${distPts.toLocaleString()} pts</span>
+          </div>
+          <div class="tree-children">`;
+
+        distRets.forEach(ret => {
+          const retPts   = loyalty.retailers[ret.retailer_id] || 0;
+          const retMechN = loyalty.mechCount.ret[ret.retailer_id] || 0;
+          const mechs    = retMechs[ret.retailer_id] ? [...retMechs[ret.retailer_id].values()] : [];
+          const hasM     = mechs.length > 0;
+          html += `<div class="tree-node" data-search="${ret.shop_name.toLowerCase()} ${ret.city.toLowerCase()} ${ret.retailer_id.toLowerCase()} ${ret.tier?.toLowerCase()||''}">
+            <div class="tree-row ret-row">
+              <span class="tree-toggle${hasM ? '' : ' leaf'}" onclick="${hasM ? 'toggleTreeNode(this)' : ''}">▼</span>
+              <span class="tree-emoji">🛍️</span>
+              <span class="tree-label ret">${ret.shop_name}</span>
+              <span class="tree-meta">${ret.city}</span>
+              <span class="tree-count">${retMechN} mechanic${retMechN!==1?'s':''}</span>
+              <span class="tree-pts network">⭐ ${retPts.toLocaleString()} pts</span>
+            </div>
+            <div class="tree-children">`;
+
+          mechs.forEach(m => {
+            html += `<div class="tree-node tree-mech-node" data-search="${(m.name||'').toLowerCase()} ${m.phone} ${(m.last_city||'').toLowerCase()} ${(m.tier||'').toLowerCase()}">
+              <div class="tree-row mech-row">
+                <span class="tree-toggle leaf">▼</span>
+                <span class="tree-emoji">🔧</span>
+                <span class="tree-label mech">${m.name || m.phone}</span>
+                <span class="tree-meta">${m.last_city || ''} · ${m.phone}</span>
+                <span class="tree-tier ${m.tier}">${tierIcon(m.tier)} ${m.tier}</span>
+                <span class="tree-pts direct">⭐ ${Number(m.points||0).toLocaleString()} pts</span>
+              </div>
+            </div>`;
+          });
+          html += `</div></div>`;
+        });
+        html += `</div></div>`;
+      });
+      html += `</div></div>`;
+    });
+
+    html += `</div></div></div>`;
+    pane.innerHTML = html;
+  }
+
+  function toggleTreeNode(el) {
+    const row = el.closest('.tree-node');
+    if (!row) return;
+    const children = row.querySelector(':scope > .tree-row ~ .tree-children');
+    if (!children) return;
+    children.classList.toggle('collapsed');
+    el.classList.toggle('collapsed');
+  }
+
+  function filterTree(query) {
+    const q = query.toLowerCase().trim();
+    const root = document.getElementById('tree-root');
+    if (!root) return;
+    // Reset state
+    root.querySelectorAll('.tree-node').forEach(n => { n.classList.remove('hidden'); n.querySelector('.tree-row')?.classList.remove('match'); });
+    root.querySelectorAll('.tree-children.collapsed').forEach(el => el.classList.remove('collapsed'));
+    root.querySelectorAll('.tree-toggle.collapsed').forEach(el => el.classList.remove('collapsed'));
+    const cnt = document.getElementById('tree-count');
+    if (!q) {
+      const total = root.querySelectorAll('.tree-mech-node').length;
+      if (cnt) cnt.textContent = `${total} mechanics`;
+      return;
+    }
+    // Mark nodes that directly match
+    const allNodes = [...root.querySelectorAll('.tree-node')];
+    const matched = new Set();
+    allNodes.forEach(node => {
+      const search = (node.dataset.search || '') + ' ' + (node.querySelector(':scope > .tree-row .tree-label')?.textContent || '').toLowerCase();
+      if (search.includes(q)) {
+        matched.add(node);
+        node.querySelector('.tree-row')?.classList.add('match');
+        // Propagate up: all ancestors are also "matched" (visible)
+        let p = node.parentElement;
+        while (p && p !== root) {
+          if (p.classList.contains('tree-node')) matched.add(p);
+          // Also show all children of a directly-matching parent
+          p = p.parentElement;
+        }
+        // Show all descendants of a matching node
+        node.querySelectorAll('.tree-node').forEach(child => matched.add(child));
+      }
+    });
+    // Hide non-matched
+    allNodes.forEach(node => { if (!matched.has(node)) node.classList.add('hidden'); });
+    const found = [...matched].filter(n => n.classList.contains('tree-mech-node')).length;
+    if (cnt) cnt.textContent = found ? `${found} mechanic${found !== 1 ? 's' : ''} matched` : 'No results';
+  }
+
+  async function loadNetworkData() {
+    if (networkLoaded) return;
+    try {
+      const res  = await fetch(`${LOCAL}/network-data`);
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+      networkData = data;
+      networkLoaded = true;
+      renderStockists();
+      renderDistributors();
+      renderRetailers();
+    } catch(e) {
+      ['stk','dst','ret'].forEach(p => {
+        const el = document.getElementById(`${p}-loading`);
+        if (el) el.innerHTML = `<div class="ico">❌</div><h2 style="color:#fc8181">${e.message}</h2><p>Is server.js running?</p>`;
+      });
+    }
+  }
+
+  /* ─── STOCKISTS ─────────────────────────────── */
+  function renderStockists() {
+    const S = networkData.stockists;
+    const D = networkData.distributors;
+    document.getElementById('stk-loading').style.display = 'none';
+    document.getElementById('stk-content').classList.remove('d-none');
+
+    const totalTarget = S.reduce((s,x) => s + Number(x.monthly_target_units||0), 0);
+    const totalCredit = S.reduce((s,x) => s + Number(x.credit_limit_lakh||0), 0);
+    const active      = S.filter(x => x.status === 'Active').length;
+    const loyalty = computeNetworkLoyalty();
+    const totalStkNetPts = Object.values(loyalty.stockists).reduce((s,v)=>s+v,0);
+    document.getElementById('stk-stats').innerHTML = `
+      <div class="stat-card" style="--a:#4299e1"><div class="sl">Total Stockists</div><div class="sv">${S.length}</div><div class="ss">Zone hubs</div><div class="si">🏭</div></div>
+      <div class="stat-card" style="--a:#68d391"><div class="sl">Active</div><div class="sv">${active}</div><div class="ss">Operational</div><div class="si">✅</div></div>
+      <div class="stat-card" style="--a:#f6ad55"><div class="sl">Total Monthly Target</div><div class="sv">${totalTarget.toLocaleString()}</div><div class="ss">Units across all zones</div><div class="si">📦</div></div>
+      <div class="stat-card" style="--a:#9f7aea"><div class="sl">Total Credit Limit</div><div class="sv">₹${totalCredit}L</div><div class="ss">Aggregate exposure</div><div class="si">💳</div></div>
+      <div class="stat-card" style="--a:#f6ad55"><div class="sl">Network Loyalty Pts</div><div class="sv">${totalStkNetPts.toLocaleString()}</div><div class="ss">↑ sum of all mechanic pts below</div><div class="si">⭐</div></div>
+    `;
+
+    const zones       = S.map(s => s.zone);
+    const zoneColors  = {'North':'#63b3ed','West':'#68d391','South':'#f6ad55','East':'#b79aed','Central':'#fc8181'};
+    const zoneBgMap   = zones.map(z => zoneColors[z]||'#4a5568');
+    const distCounts  = S.map(s => D.filter(d => d.stockist_id === s.stockist_id).length);
+
+    if (stkZoneChart) stkZoneChart.destroy();
+    stkZoneChart = new Chart(document.getElementById('stkZoneChart'), {
+      type: 'doughnut',
+      data: { labels: zones, datasets: [{ data: distCounts, backgroundColor: zoneBgMap, borderWidth: 0 }] },
+      options: { plugins: { legend: { labels: { color:'#a0aec0' } } }, cutout: '60%' }
+    });
+
+    if (stkTargetChart) stkTargetChart.destroy();
+    stkTargetChart = new Chart(document.getElementById('stkTargetChart'), {
+      type: 'bar',
+      data: { labels: S.map(s => `${s.zone} (${s.city})`), datasets: [{ label: 'Monthly Target (units)', data: S.map(s => Number(s.monthly_target_units||0)), backgroundColor: zoneBgMap, borderRadius: 6 }] },
+      options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks:{color:'#a0aec0'}, grid:{color:'#2d3748'} }, y: { ticks:{color:'#a0aec0'}, grid:{color:'#2d3748'} } } }
+    });
+
+    if (stkCreditChart) stkCreditChart.destroy();
+    stkCreditChart = new Chart(document.getElementById('stkCreditChart'), {
+      type: 'bubble',
+      data: { datasets: S.map((s, i) => ({ label: s.zone, data: [{ x: Number(s.monthly_target_units||0), y: Number(s.credit_limit_lakh||0), r: Math.max(8, distCounts[i]*6) }], backgroundColor: (zoneBgMap[i]||'#4299e1')+'cc' })) },
+      options: { plugins: { legend: { labels: { color:'#a0aec0' } }, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: Target ${c.raw.x}u, Credit ₹${c.raw.y}L, ${Math.round(c.raw.r/6)} distributors` } } }, scales: { x: { title:{display:true,text:'Monthly Target (units)',color:'#718096'}, ticks:{color:'#a0aec0'}, grid:{color:'#2d3748'} }, y: { title:{display:true,text:'Credit Limit (₹ Lakh)',color:'#718096'}, ticks:{color:'#a0aec0'}, grid:{color:'#2d3748'} } } }
+    });
+
+    if (stkDistChart) stkDistChart.destroy();
+    stkDistChart = new Chart(document.getElementById('stkDistChart'), {
+      type: 'bar',
+      data: { labels: S.map(s => s.zone), datasets: [{ label: 'Distributors', data: distCounts, backgroundColor: zoneBgMap, borderRadius: 6 }] },
+      options: { plugins: { legend: { display: false } }, scales: { x: { ticks:{color:'#a0aec0'}, grid:{color:'#2d3748'} }, y: { ticks:{color:'#a0aec0',stepSize:1}, grid:{color:'#2d3748'} } } }
+    });
+
+    const zoneColor = (z) => ({ North:'#63b3ed',West:'#68d391',South:'#f6ad55',East:'#b79aed',Central:'#fc8181' })[z]||'#4a5568';
+    document.getElementById('stk-tbody').innerHTML = S.map(s => {
+      const dc = D.filter(d => d.stockist_id === s.stockist_id).length;
+      return `<tr>
+        <td style="font-family:monospace;color:#76e4f7">${s.stockist_id}</td>
+        <td style="font-weight:600">${s.name}</td>
+        <td>${s.owner_name}</td>
+        <td><span class="zone-badge zone-${s.zone}">${s.zone}</span></td>
+        <td>${s.city}, ${s.state}</td>
+        <td style="font-weight:700;color:#f6ad55">${Number(s.monthly_target_units||0).toLocaleString()}</td>
+        <td style="font-weight:700;color:#68d391">₹${s.credit_limit_lakh}L</td>
+        <td style="text-align:center">${dc}</td>
+        <td><span class="status-badge badge-Healthy">${s.status}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  /* ─── DISTRIBUTORS ───────────────────────────── */
+  function renderDistributors() {
+    const D = networkData.distributors;
+    const S = networkData.stockists;
+    const R = networkData.retailers;
+    document.getElementById('dst-loading').style.display = 'none';
+    document.getElementById('dst-content').classList.remove('d-none');
+
+    const totalTarget = D.reduce((s,x) => s + Number(x.monthly_target_units||0), 0);
+    const totalCredit = D.reduce((s,x) => s + Number(x.credit_limit_lakh||0), 0);
+    const avgRet = (D.reduce((s,x) => s + Number(x.total_retailers||0), 0) / D.length).toFixed(1);
+    const active = D.filter(x => x.status === 'Active').length;
+    const loyalty = computeNetworkLoyalty();
+    const totalDstNetPts = Object.values(loyalty.distributors).reduce((s,v)=>s+v,0);
+    document.getElementById('dst-stats').innerHTML = `
+      <div class="stat-card" style="--a:#4299e1"><div class="sl">Total Distributors</div><div class="sv">${D.length}</div><div class="ss">Across all zones</div><div class="si">🚛</div></div>
+      <div class="stat-card" style="--a:#68d391"><div class="sl">Active</div><div class="sv">${active}</div><div class="ss">Operational</div><div class="si">✅</div></div>
+      <div class="stat-card" style="--a:#f6ad55"><div class="sl">Total Monthly Target</div><div class="sv">${totalTarget.toLocaleString()}</div><div class="ss">Units combined</div><div class="si">📦</div></div>
+      <div class="stat-card" style="--a:#9f7aea"><div class="sl">Avg Retailers/Distributor</div><div class="sv">${avgRet}</div><div class="ss">Channel depth</div><div class="si">🛍️</div></div>
+      <div class="stat-card" style="--a:#fc8181"><div class="sl">Total Credit Limit</div><div class="sv">₹${totalCredit}L</div><div class="ss">Aggregate exposure</div><div class="si">💳</div></div>
+      <div class="stat-card" style="--a:#f6ad55"><div class="sl">Network Loyalty Pts</div><div class="sv">${totalDstNetPts.toLocaleString()}</div><div class="ss">↑ sum of retailer network pts</div><div class="si">⭐</div></div>
+    `;
+
+    const zoneColors = {'North':'#63b3ed','West':'#68d391','South':'#f6ad55','East':'#b79aed','Central':'#fc8181'};
+    // Group by stockist zone
+    const zoneGroups = {};
+    S.forEach(s => { zoneGroups[s.zone] = D.filter(d => d.stockist_id === s.stockist_id); });
+    const zoneLabs = Object.keys(zoneGroups);
+    const zoneCountData = zoneLabs.map(z => zoneGroups[z].length);
+    const zoneBgArr     = zoneLabs.map(z => zoneColors[z]||'#4a5568');
+
+    if (dstByStockistChart) dstByStockistChart.destroy();
+    dstByStockistChart = new Chart(document.getElementById('dstByStockistChart'), {
+      type: 'bar',
+      data: { labels: zoneLabs, datasets: [{ label: 'Distributors', data: zoneCountData, backgroundColor: zoneBgArr, borderRadius: 6 }] },
+      options: { plugins: { legend: { display: false } }, scales: { x: { ticks:{color:'#a0aec0'}, grid:{color:'#2d3748'} }, y: { ticks:{color:'#a0aec0',stepSize:1}, grid:{color:'#2d3748'} } } }
+    });
+
+    // Monthly target per distributor
+    if (dstTargetChart) dstTargetChart.destroy();
+    dstTargetChart = new Chart(document.getElementById('dstTargetChart'), {
+      type: 'bar',
+      data: { labels: D.map(d => d.distributor_id), datasets: [{ label: 'Monthly Target (units)', data: D.map(d => Number(d.monthly_target_units||0)), backgroundColor: '#4299e1', borderRadius: 4 }] },
+      options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks:{color:'#a0aec0'}, grid:{color:'#2d3748'} }, y: { ticks:{color:'#a0aec0',font:{size:9}}, grid:{color:'#2d3748'} } } }
+    });
+
+    // Retailers per distributor
+    const retPerDist = D.map(d => R.filter(r => r.distributor_id === d.distributor_id).length);
+    const distColors  = D.map(d => { const stk = S.find(s => s.stockist_id === d.stockist_id); return zoneColors[stk?.zone]||'#4299e1'; });
+    if (dstRetailersChart) dstRetailersChart.destroy();
+    dstRetailersChart = new Chart(document.getElementById('dstRetailersChart'), {
+      type: 'bar',
+      data: { labels: D.map(d => d.distributor_id), datasets: [{ label: 'Retailers', data: retPerDist, backgroundColor: distColors, borderRadius: 4 }] },
+      options: { plugins: { legend: { display: false } }, scales: { x: { ticks:{color:'#a0aec0',font:{size:9},maxRotation:45}, grid:{color:'#2d3748'} }, y: { ticks:{color:'#a0aec0',stepSize:1}, grid:{color:'#2d3748'} } } }
+    });
+
+    // Scatter: credit vs target
+    if (dstScatterChart) dstScatterChart.destroy();
+    dstScatterChart = new Chart(document.getElementById('dstScatterChart'), {
+      type: 'scatter',
+      data: { datasets: [{ label: 'Distributors', data: D.map(d => ({ x: Number(d.monthly_target_units||0), y: Number(d.credit_limit_lakh||0) })), backgroundColor: distColors, pointRadius: 7, pointHoverRadius: 10 }] },
+      options: { plugins: { legend:{display:false}, tooltip:{callbacks:{label:(c)=>{ const d=D[c.dataIndex]; return `${d.city}: Target ${c.raw.x}u, ₹${c.raw.y}L credit`; }}} }, scales: { x:{title:{display:true,text:'Monthly Target (units)',color:'#718096'},ticks:{color:'#a0aec0'},grid:{color:'#2d3748'}}, y:{title:{display:true,text:'Credit Limit (₹L)',color:'#718096'},ticks:{color:'#a0aec0'},grid:{color:'#2d3748'}} } }
+    });
+
+    // Radar: zones vs avg KPIs
+    const zAvg = (zone, key) => { const g = zoneGroups[zone]||[]; return g.length ? +(g.reduce((s,d)=>s+Number(d[key]||0),0)/g.length).toFixed(1) : 0; };
+    const radarData = (zone) => [
+      +(zAvg(zone,'monthly_target_units')/20).toFixed(1),
+      +(zAvg(zone,'credit_limit_lakh')).toFixed(1),
+      +(zoneGroups[zone]?.length||0),
+      +(retPerDist.filter((_,i) => { const stk=S.find(s=>s.stockist_id===D[i]?.stockist_id); return stk?.zone===zone; }).reduce((a,b)=>a+b,0) / (zoneGroups[zone]?.length||1)).toFixed(1)
+    ];
+    if (dstRadarChart) dstRadarChart.destroy();
+    dstRadarChart = new Chart(document.getElementById('dstRadarChart'), {
+      type: 'radar',
+      data: {
+        labels: ['Avg Target (/20)','Avg Credit (₹L)','Distributors Count','Avg Retailers/Dist'],
+        datasets: zoneLabs.map((z,i) => ({ label: z, data: radarData(z), borderColor: zoneBgArr[i], backgroundColor: (zoneBgArr[i]||'#4299e1')+'22', pointBackgroundColor: zoneBgArr[i] }))
+      },
+      options: { plugins:{legend:{labels:{color:'#a0aec0'}}}, scales:{r:{angleLines:{color:'#2d3748'},grid:{color:'#2d3748'},pointLabels:{color:'#a0aec0',font:{size:10}},ticks:{color:'#4a5568',backdropColor:'transparent'}}} }
+    });
+
+    // Populate distributor filter in retailers tab
+    const sel = document.getElementById('ret-dist-filter');
+    if (sel) { sel.innerHTML = '<option value="">All Distributors</option>' + D.map(d => `<option value="${d.distributor_id}">${d.distributor_id} — ${d.city}</option>`).join(''); }
+
+    renderTableDistributors();
+  }
+
+  function renderTableDistributors() {
+    const D = networkData.distributors;
+    const S = networkData.stockists;
+    const q    = (document.getElementById('dst-search')?.value||'').toLowerCase();
+    const zone = document.getElementById('dst-zone-filter')?.value||'';
+    const zoneColors = {'North':'#63b3ed','West':'#68d391','South':'#f6ad55','East':'#b79aed','Central':'#fc8181'};
+    const filtered = D.filter(d => {
+      const stk = S.find(s => s.stockist_id === d.stockist_id);
+      return (!q || d.name.toLowerCase().includes(q) || d.city.toLowerCase().includes(q)) &&
+             (!zone || stk?.zone === zone);
+    });
+    document.getElementById('dst-row-count').textContent = `${filtered.length} of ${D.length}`;
+    document.getElementById('dst-tbody').innerHTML = filtered.map(d => {
+      const stk = S.find(s => s.stockist_id === d.stockist_id);
+      const col = stk ? (zoneColors[stk.zone]||'#a0aec0') : '#a0aec0';
+      const retCount = networkData.retailers.filter(r => r.distributor_id === d.distributor_id).length;
+      return `<tr>
+        <td style="font-family:monospace;color:#76e4f7">${d.distributor_id}</td>
+        <td style="font-weight:600">${d.name}</td>
+        <td>${d.owner_name}</td>
+        <td><span class="zone-badge zone-${stk?.zone||''}" style="border-color:${col}20">${stk?.zone||d.stockist_id}</span></td>
+        <td>${d.city}, ${d.state}</td>
+        <td style="font-weight:700;color:#f6ad55">${Number(d.monthly_target_units||0).toLocaleString()}</td>
+        <td style="color:#68d391">₹${d.credit_limit_lakh}L</td>
+        <td style="text-align:center">${retCount}</td>
+        <td><span class="status-badge badge-Healthy">${d.status}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  /* ─── RETAILERS ──────────────────────────────── */
+  function renderRetailers() {
+    const R = networkData.retailers;
+    const D = networkData.distributors;
+    const H = networkData.hierarchy;
+    document.getElementById('ret-loading').style.display = 'none';
+    document.getElementById('ret-content').classList.remove('d-none');
+
+    const tierCounts = { Gold:0, Silver:0, Bronze:0 };
+    R.forEach(r => { if (tierCounts[r.tier] !== undefined) tierCounts[r.tier]++; });
+    const totalOutstanding = R.reduce((s,r) => s + Number(r.outstanding_amount||0), 0);
+    const avgPurchases = (R.reduce((s,r) => s + Number(r.monthly_purchase_units||0), 0) / R.length).toFixed(0);
+    const active = R.filter(r => r.status === 'Active').length;
+
+    const loyalty = computeNetworkLoyalty();
+    const totalRetNetPts = Object.values(loyalty.retailers).reduce((s,v)=>s+v,0);
+    document.getElementById('ret-stats').innerHTML = `
+      <div class="stat-card" style="--a:#4299e1"><div class="sl">Total Retailers</div><div class="sv">${R.length}</div><div class="ss">Shop network</div><div class="si">🛍️</div></div>
+      <div class="stat-card" style="--a:#d69e2e"><div class="sl">Gold Tier</div><div class="sv">${tierCounts.Gold}</div><div class="ss">High-value accounts</div><div class="si">🥇</div></div>
+      <div class="stat-card" style="--a:#a0aec0"><div class="sl">Silver Tier</div><div class="sv">${tierCounts.Silver}</div><div class="ss">Growing accounts</div><div class="si">🥈</div></div>
+      <div class="stat-card" style="--a:#c05621"><div class="sl">Bronze Tier</div><div class="sv">${tierCounts.Bronze}</div><div class="ss">Entry accounts</div><div class="si">🥉</div></div>
+      <div class="stat-card" style="--a:#f6ad55"><div class="sl">Avg Monthly Purchases</div><div class="sv">${avgPurchases}</div><div class="ss">Units per retailer</div><div class="si">📦</div></div>
+      <div class="stat-card" style="--a:#fc8181"><div class="sl">Total Outstanding</div><div class="sv">₹${(totalOutstanding/100000).toFixed(1)}L</div><div class="ss">Accounts receivable</div><div class="si">💰</div></div>
+      <div class="stat-card" style="--a:#f6ad55"><div class="sl">Network Loyalty Pts</div><div class="sv">${totalRetNetPts.toLocaleString()}</div><div class="ss">↑ sum of mechanic pts below</div><div class="si">⭐</div></div>
+    `;
+
+    // Tier doughnut
+    if (retTierChart) retTierChart.destroy();
+    retTierChart = new Chart(document.getElementById('retTierChart'), {
+      type: 'doughnut',
+      data: { labels:['🥇 Gold','🥈 Silver','🥉 Bronze'], datasets:[{ data:[tierCounts.Gold,tierCounts.Silver,tierCounts.Bronze], backgroundColor:['#d69e2e','#718096','#c05621'], borderWidth:0 }] },
+      options: { plugins:{legend:{labels:{color:'#a0aec0'}}}, cutout:'62%' }
+    });
+
+    // Purchase histogram
+    const pBkts=[0,0,0,0,0], pLabels=['<100','100–149','150–199','200–249','250+'];
+    const pColors=['#fc8181','#f6ad55','#4299e1','#68d391','#0bc5ea'];
+    R.forEach(r => { const v=Number(r.monthly_purchase_units||0); if(v<100)pBkts[0]++; else if(v<150)pBkts[1]++; else if(v<200)pBkts[2]++; else if(v<250)pBkts[3]++; else pBkts[4]++; });
+    if (retPurchaseChart) retPurchaseChart.destroy();
+    retPurchaseChart = new Chart(document.getElementById('retPurchaseChart'), {
+      type: 'bar',
+      data: { labels:pLabels, datasets:[{ data:pBkts, backgroundColor:pColors, borderRadius:4 }] },
+      options: { plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#a0aec0'},grid:{color:'#2d3748'}}, y:{ticks:{color:'#a0aec0',stepSize:2},grid:{color:'#2d3748'}} } }
+    });
+
+    // Loyalty points distribution
+    const ptBkts=[0,0,0,0,0], ptLabels=['<500','500–999','1k–1.9k','2k–2.9k','3k+'];
+    R.forEach(r => { const v=Number(r.loyalty_points||0); if(v<500)ptBkts[0]++; else if(v<1000)ptBkts[1]++; else if(v<2000)ptBkts[2]++; else if(v<3000)ptBkts[3]++; else ptBkts[4]++; });
+    if (retPointsChart) retPointsChart.destroy();
+    retPointsChart = new Chart(document.getElementById('retPointsChart'), {
+      type: 'bar',
+      data: { labels:ptLabels, datasets:[{ data:ptBkts, backgroundColor:['#fc8181','#f6ad55','#63b3ed','#68d391','#0bc5ea'], borderRadius:4 }] },
+      options: { plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#a0aec0'},grid:{color:'#2d3748'}}, y:{ticks:{color:'#a0aec0',stepSize:2},grid:{color:'#2d3748'}} } }
+    });
+
+    // Outstanding by distributor
+    const distOut = {};
+    D.forEach(d => { distOut[d.distributor_id] = 0; });
+    R.forEach(r => { if (distOut[r.distributor_id] !== undefined) distOut[r.distributor_id] += Number(r.outstanding_amount||0); });
+    const distIds  = Object.keys(distOut);
+    const distVals = distIds.map(id => distOut[id]);
+    const distLabs = distIds.map(id => { const d = D.find(x => x.distributor_id === id); return d ? d.city : id; });
+    if (retOutstandingChart) retOutstandingChart.destroy();
+    retOutstandingChart = new Chart(document.getElementById('retOutstandingChart'), {
+      type: 'bar',
+      data: { labels: distLabs, datasets:[{ label:'Outstanding (₹)', data:distVals, backgroundColor:'#fc8181', borderRadius:4 }] },
+      options: { indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#a0aec0',font:{size:9},callback:v=>'₹'+(v/1000).toFixed(0)+'k'},grid:{color:'#2d3748'}}, y:{ticks:{color:'#a0aec0',font:{size:9}},grid:{color:'#2d3748'}} } }
+    });
+
+    // Mechanics linked per retailer (top 20)
+    const mechPerRet = R.map(r => ({ id: r.retailer_id, shop: r.shop_name.split(' ').slice(0,2).join(' '), count: H.filter(h => h.retailer_id === r.retailer_id).length }));
+    const top20 = [...mechPerRet].sort((a,b)=>b.count-a.count).slice(0,20);
+    if (retMechChart) retMechChart.destroy();
+    retMechChart = new Chart(document.getElementById('retMechChart'), {
+      type: 'bar',
+      data: { labels: top20.map(x=>x.shop), datasets:[{ label:'Mechanics', data:top20.map(x=>x.count), backgroundColor:'#9f7aea', borderRadius:4 }] },
+      options: { plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#a0aec0',font:{size:9},maxRotation:45},grid:{color:'#2d3748'}}, y:{ticks:{color:'#a0aec0',stepSize:1},grid:{color:'#2d3748'}} } }
+    });
+
+    // Monthly purchases by state
+    const stateMap = {};
+    R.forEach(r => { stateMap[r.state] = (stateMap[r.state]||0) + Number(r.monthly_purchase_units||0); });
+    const stateEntries = Object.entries(stateMap).sort((a,b)=>b[1]-a[1]);
+    if (retStateChart) retStateChart.destroy();
+    retStateChart = new Chart(document.getElementById('retStateChart'), {
+      type: 'bar',
+      data: { labels: stateEntries.map(e=>e[0]), datasets:[{ label:'Monthly Purchases', data:stateEntries.map(e=>e[1]), backgroundColor:'#4299e1', borderRadius:4 }] },
+      options: { indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#a0aec0'},grid:{color:'#2d3748'}}, y:{ticks:{color:'#a0aec0',font:{size:9}},grid:{color:'#2d3748'}} } }
+    });
+
+    // Scatter: loyalty points vs monthly purchases by tier
+    const tierClrs = { Gold:'rgba(214,158,46,.8)', Silver:'rgba(160,174,192,.8)', Bronze:'rgba(192,86,33,.8)' };
+    const scatterByTier = {};
+    Object.keys(tierClrs).forEach(t => { scatterByTier[t] = { label:t, data:[], backgroundColor:tierClrs[t], pointRadius:6 }; });
+    R.forEach(r => { if (scatterByTier[r.tier]) scatterByTier[r.tier].data.push({ x:Number(r.monthly_purchase_units||0), y:Number(r.loyalty_points||0) }); });
+    if (retScatterChart) retScatterChart.destroy();
+    retScatterChart = new Chart(document.getElementById('retScatterChart'), {
+      type: 'scatter',
+      data: { datasets: Object.values(scatterByTier) },
+      options: { plugins:{legend:{labels:{color:'#a0aec0'}}}, scales:{ x:{title:{display:true,text:'Monthly Purchases (units)',color:'#718096'},ticks:{color:'#a0aec0'},grid:{color:'#2d3748'}}, y:{title:{display:true,text:'Loyalty Points',color:'#718096'},ticks:{color:'#a0aec0'},grid:{color:'#2d3748'}} } }
+    });
+
+    renderTableRetailers();
+  }
+
+  function renderTableRetailers() {
+    const R = networkData.retailers;
+    const D = networkData.distributors;
+    const q     = (document.getElementById('ret-search')?.value||'').toLowerCase();
+    const tier  = document.getElementById('ret-tier-filter')?.value||'';
+    const distF = document.getElementById('ret-dist-filter')?.value||'';
+    const filtered = R.filter(r =>
+      (!q    || r.shop_name.toLowerCase().includes(q) || r.city.toLowerCase().includes(q)) &&
+      (!tier || r.tier === tier) &&
+      (!distF || r.distributor_id === distF)
+    );
+    document.getElementById('ret-row-count').textContent = `${filtered.length} of ${R.length}`;
+    const tierColorClass = { Gold:'ret-tier-Gold', Silver:'ret-tier-Silver', Bronze:'ret-tier-Bronze' };
+    document.getElementById('ret-tbody').innerHTML = filtered.map((r,i) => {
+      const dist = D.find(d => d.distributor_id === r.distributor_id);
+      return `<tr>
+        <td style="color:#718096">${i+1}</td>
+        <td style="font-weight:600">${r.shop_name}</td>
+        <td>${r.owner_name}</td>
+        <td>${r.city}, ${r.state}</td>
+        <td style="font-size:0.78rem;color:#718096">${dist?.city||r.distributor_id} (${r.distributor_id})</td>
+        <td><span class="tier-badge ${tierColorClass[r.tier]||''}">${r.tier}</span></td>
+        <td style="font-weight:700;color:#f6ad55">${r.monthly_purchase_units}</td>
+        <td>${Number(r.loyalty_points||0).toLocaleString()}</td>
+        <td style="color:${Number(r.outstanding_amount||0)>40000?'#fc8181':'#68d391'};font-weight:600">₹${Number(r.outstanding_amount||0).toLocaleString()}</td>
+        <td><span class="status-badge badge-Healthy">${r.status}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  /* ─── NETWORK AI ──────────────────────────────── */
+  async function runNetworkAnalysis(entity) {
+    const btnIds = { stockist:'stkAiBtn', distributor:'dstAiBtn', retailer:'retAiBtn' };
+    const btn = document.getElementById(btnIds[entity]);
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin">↻</span> Analyzing…'; }
+    const loadEl = document.getElementById(`net-ai-loading-${entity}`);
+    const resEl  = document.getElementById(`net-ai-results-${entity}`);
+    if (loadEl) loadEl.style.display = 'block';
+    if (resEl)  resEl.style.display = 'none';
+    try {
+      if (!networkLoaded) await loadNetworkData();
+      const res  = await fetch(`${LOCAL}/network-analyze`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ entity }) });
+      if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error||`HTTP ${res.status}`); }
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+      renderNetworkAI(entity, data.analysis);
+    } catch(e) {
+      if (resEl) { resEl.style.display = 'block'; resEl.innerHTML = `<div class="net-ai-exec"><strong>❌ Error</strong>${e.message}. Make sure server.js is running and GEMINI_API_KEY is set.</div>`; }
+    } finally {
+      if (loadEl) loadEl.style.display = 'none';
+      if (btn) { btn.disabled = false; btn.innerHTML = '✨ Re-Analyze'; }
+    }
+  }
+
+  function renderNetworkAI(entity, a) {
+    const resEl = document.getElementById(`net-ai-results-${entity}`);
+    if (!resEl) return;
+    const mkCard = (c, cls='') => `
+      <div class="net-card ${c.priority||'Low'} ${cls}">
+        <div class="net-card-hdr">
+          <span class="net-card-icon">${c.icon||'💡'}</span>
+          <span class="net-card-title">${c.title}</span>
+          ${c.priority ? `<span class="net-prio ${c.priority}">${c.priority}</span>` : ''}
+        </div>
+        <div class="net-card-detail">${c.detail}</div>
+        ${c.action ? `<div class="net-card-action">→ ${c.action}</div>` : ''}
+      </div>`;
+    const mkOpp = (o) => `
+      <div class="opp-card">
+        <div class="opp-card-hdr"><span class="opp-card-icon">${o.icon||'🚀'}</span><span class="opp-card-title">${o.title}</span></div>
+        <div class="opp-card-detail">${o.detail}</div>
+        ${o.action ? `<div class="opp-card-action">🚀 ${o.action}</div>` : ''}
+      </div>`;
+    const insights     = (a.insights||[]);
+    const opportunities= (a.opportunities||[]);
+    const risks        = (a.risks||[]);
+    const recs         = (a.recommendations||[]);
+    resEl.innerHTML = `
+      <div class="net-thinking-box" style="${a.thinking?'':'display:none'}">${a.thinking||''}</div>
+      <div class="net-ai-exec"><strong>📋 Executive Summary</strong>${a.exec_summary||''}</div>
+      <div class="section-hdr"><h3>💡 Key Insights</h3><div class="badge">${insights.length} insights</div><div class="section-line"></div></div>
+      <div class="net-card-grid">${insights.map(c => mkCard(c)).join('')}</div>
+      <div class="section-hdr"><h3>🚀 Growth Opportunities</h3><div class="badge">${opportunities.length} found</div><div class="section-line"></div></div>
+      <div class="net-card-grid">${opportunities.map(mkOpp).join('')}</div>
+      <div class="section-hdr"><h3>⚠️ Key Risks</h3><div class="badge">${risks.length} risks</div><div class="section-line"></div></div>
+      <div class="net-card-grid">${risks.map(c => mkCard(c)).join('')}</div>
+      <div class="section-hdr"><h3>📋 Strategic Recommendations</h3><div class="badge">${recs.length} actions</div><div class="section-line"></div></div>
+      <ul class="rec-list">${recs.map(r=>`<li class="rec-item ${r.priority||'Low'}"><div class="rec-dot"></div><div><div class="rec-item-title">${r.title}</div><div class="rec-item-detail">${r.detail}</div></div><span class="net-prio ${r.priority||'Low'}" style="flex-shrink:0;margin-left:auto;align-self:flex-start">${r.priority||''}</span></li>`).join('')}</ul>
+    `;
+    resEl.style.display = 'block';
   }
 
   /* ═══════════════════════════════════════════════
